@@ -13,10 +13,15 @@ class CategoriaSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        //craemos una categoría de ejemplo
         Categoria::create([
             'nombre' => 'Electrónica',
             'descripcion' => 'Productos electrónicos como teléfonos, computadoras, televisores, etc.',
+        ]);
+        //creamos otra categoría de ejemplo
+        Categoria::create([
+            'nombre' => 'Ropa',
+            'descripcion' => 'Ropa para hombres, mujeres y niños.',
         ]);
     }
 }
