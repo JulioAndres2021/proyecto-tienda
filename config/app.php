@@ -1,6 +1,9 @@
 <?php
 
 return [
+    
+    /*MUESTRA LA VARIABLE DE ENTORNO DE LA VERSION DEL SISTEMA */
+    'release'=> env('APP_RELEASE', '1.0.0-beta'),
 
     /*
     |--------------------------------------------------------------------------
