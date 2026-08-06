@@ -10,7 +10,10 @@ Route::get('/user', function (Request $request) {
 
 //RUTAS DEL GRUPO API VERSION 1
 Route::prefix('v1')->group(function() {
-    
+
     //RUTA DE PRODUCTOS
+    //Obtener todos los productos en formato JSON
     Route::get('/productos', [ProductoController::class, 'index'])->name('api.productos');
+    //Crear un nuevo producto en la base de datos
+    Route::post('/productos', [ProductoController::class, 'store'])->name('api.productos.store');
 });
