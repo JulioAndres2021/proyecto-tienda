@@ -23,10 +23,17 @@ Route::prefix('v1')->group(function() {
     Route::put('/productos/{id}', [ProductoController::class, 'update'])->name('api.productos.update');
     //Elimina un producto específico de la base de datos
     Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])->name('api.productos.destroy');
+
     //CATEGORIAS
     //Obtener todas las categorías en formato JSON
     Route::get('/categorias', [CategoriaController::class, 'index'])->name('api.categorias');
     //Crear una nueva categoría en la base de datos
     Route::post('/categorias', [CategoriaController::class, 'store'])->name('api.categorias.store');
+    //Muestra una categoría específica en formato JSON
+    Route::get('/categorias/{id}', [CategoriaController::class, 'show'])->name('api.categorias.show');
+    //Actualiza una categoría en la base de datos
+    Route::put('/categorias/{id}', [CategoriaController::class, 'update'])->name('api.categorias.update');
+    //Elimina una categoría específica de la base de datos
+    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy'])->name('api.categorias.destroy');
 
 });
