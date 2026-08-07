@@ -1,9 +1,9 @@
 ## Proyecto tienda del curso CITIA de ALKEMY
-# Tienda en Línea - Entrega 1
+# Tienda en Línea - Entrega 2
 
-¡Bienvenido al repositorio de la Tienda en Línea! Este proyecto es la primera entrega de la aplicación, enfocada en la gestión base del catálogo de productos y su organización.
+¡Bienvenido al repositorio de la Tienda en Línea! Este proyecto es la segunda entrega de la aplicación, enfocada en la gestión base del catálogo de productos y su organización.
 
-## 🚀 Características de la Entrega 1
+## 🚀 Características de la Entrega 2
 
 Por el momento, el sistema cuenta con los siguientes módulos funcionales:
 
@@ -14,7 +14,7 @@ Por el momento, el sistema cuenta con los siguientes módulos funcionales:
 
 * **PHP 8.4**
 * **Laravel 13**
-* **MySQL** / **PostgreSQL** (Base de datos)
+* **MySQL**  (Base de datos)
 
 ## 📦 Instalación y Configuración Local
 
