@@ -9,7 +9,8 @@ class ProductoController extends Controller
 {
     //Metodo Index, devuelve todos los productos en formato JSON
     public function index() {
-        $productos = Producto::all();
+        //$productos = Producto::all(); //Mostarmos todos los productos
+        $productos = Producto::with('categoria')->get();//mostramos los productos con su categoría asociada
         return response()->json($productos);
     }
 
