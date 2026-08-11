@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 
@@ -29,7 +30,8 @@ class ProductoController extends Controller
 
     //Muestra un producto específico en formato JSON
     public function show($id) {
-        $producto = Producto::find($id);
+        // Cargamos el producto junto con su categoría relacionada
+        $producto = Producto::with('categoria')->find($id);
         //Si el producto existe, devuelve el producto en formato JSON, de lo contrario devuelve un mensaje de error
         if ($producto) {
             return response()->json($producto);
