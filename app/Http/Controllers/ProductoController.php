@@ -59,7 +59,7 @@ class ProductoController extends Controller
     }
 
     //Eliminamos un producto específico de la base de datos
-    public function delete(Request $request, $id) {
+    public function destroy(Request $request, $id) {
         $producto = Producto::find($id);
         //Si el producto existe, lo eliminamos de la base de datos, de lo contrario devuelve un mensaje de error
         if ($producto) {

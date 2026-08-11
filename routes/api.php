@@ -36,4 +36,5 @@ Route::prefix('v1')->group(function() {
     //Elimina una categoría específica de la base de datos
     Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy'])->name('api.categorias.destroy');
 
+
 });
