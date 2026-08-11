@@ -65,7 +65,7 @@ php artisan serve
 Ya podés acceder a la aplicación desde tu navegador en `http://127.0.0.1:8000`.
 
 ### 7. CRUD PRODUCTO Y CATEGORIA
-
+```bash
 GET: Listar todos los productos: `http://127.0.0.1:8000/api/v1/productos`
 GET: Listar un producto especifico: `http://127.0.0.1:8000/api/v1/productos/1`
 POST: Crear un producto `http://127.0.0.1:8000/api/v1/productos`
@@ -77,7 +77,7 @@ GET: Listar un categoria especifico: `http://127.0.0.1:8000/api/v1/categorias/1`
 POST: Crear un categoria `http://127.0.0.1:8000/api/v1/categorias`
 PUT: Actualizar un categoria especifico `http://127.0.0.1:8000/api/v1/categorias/1`
 DELETE: Borrar un categoria especifico `http://127.0.0.1:8000/api/v1/categorias/1`
-
+```
 ## 👥 Autores
 * **Julio Andres** - *Desarrollo Completo* - [JulioAndres2021](https://github.com/JulioAndres2021/proyecto-tienda)
 
