@@ -24,7 +24,7 @@ class StoreCategoriaRequest extends FormRequest
     {
         return [
              'nombre' => ['required','string','max:255'],
-             'descripcion' => ['nullable','string','max:200'],
+             'descripcion' => ['required','string','max:200'],
         ];
     }
 

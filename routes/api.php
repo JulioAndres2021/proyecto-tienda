@@ -12,11 +12,25 @@ Route::get('/user', function (Request $request) {
 //RUTAS DEL GRUPO API VERSION 1 (Le agregamos el prefix v1 a todas las rutas)
 Route::prefix('v1')->group(function() {
 
-    //PRODUCTOS
-    Route::apiResource('productos',ProductoController::class);
+     // PRODUCTOS
+    Route::apiResource('productos', ProductoController::class)
+        ->missing(function (Request $request) {
+            return response()->json([
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'Producto no encontrado.',
+            ], 404);
+        });
 
-    //CATEGORIAS
-    Route::apiResource('categorias',CategoriaController::class);
+    // CATEGORIAS
+    Route::apiResource('categorias', CategoriaController::class)
+        ->missing(function (Request $request) {
+            return response()->json([
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'Categoría no encontrada.',
+            ], 404);
+        });
 
 
 });

@@ -17,8 +17,14 @@ class CategoriaController extends Controller
      */
     public function index(): JsonResponse
     {
-        $categorias = Categoria::all(); //Traemos todos los datos
-        return response()->json($categorias);//Retornamos
+        $categorias = Categoria::all();
+
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Categorías obtenidas correctamente.',
+            'datos' => $categorias,
+        ], 200);
     }
 
     /**
@@ -30,7 +36,12 @@ class CategoriaController extends Controller
 
         $categoria = Categoria::create($validatedata); //Los agregamos a la base
 
-        return response()->json($categoria, 201); //retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 201,
+            'mensaje' => 'Categoría creada correctamente.',
+            'datos' => $categoria,
+        ], 201);
 
     }
 
@@ -39,7 +50,12 @@ class CategoriaController extends Controller
      */
     public function show(Categoria $categoria)
     {
-        return response()->json($categoria); //Retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Categoría obtenida correctamente.',
+            'datos' => $categoria,
+        ], 200);
     }
 
     /**
@@ -51,7 +67,12 @@ class CategoriaController extends Controller
 
         $categoria->update($validatedata); //Actualizamos
 
-        return response()->json($categoria); //Retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Categoría actualizada correctamente.',
+            'datos' => $categoria,
+        ], 200);
     }
 
     /**
@@ -62,7 +83,9 @@ class CategoriaController extends Controller
         $categoria->delete(); //Borramos
 
         return response()->json([
-            'message' => 'Registro eliminado correctamente'
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Categoría eliminada correctamente.',
         ], 200);
     }
 }

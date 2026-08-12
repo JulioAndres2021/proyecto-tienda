@@ -18,9 +18,14 @@ class ProductoController extends Controller
      */
     public function index(): JsonResponse
     {
-        $productos = Producto::all(); //Tomamos todos los datos
+       $productos = Producto::with('categoria')->get();
 
-        return response()->json($productos); //retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Productos obtenidos correctamente.',
+            'datos' => $productos,
+        ], 200);
     }
 
     /**
@@ -30,9 +35,14 @@ class ProductoController extends Controller
     {
         $validatedata = $request->validated(); //Validamos los datos traidos
 
-        $productos = Producto::create($validatedata); //Los agregamos a la base
+        $producto = Producto::create($validatedata); //Los agregamos a la base
 
-        return response()->json($productos, 201); //retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 201,
+            'mensaje' => 'Producto creado correctamente.',
+            'datos' => $producto,
+        ], 201);
     }
 
     /**
@@ -40,7 +50,12 @@ class ProductoController extends Controller
      */
     public function show(Producto $producto)
     {
-        return response()->json($producto); //retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Producto obtenido correctamente.',
+            'datos' => $producto,
+        ], 200);
     }
 
     /**
@@ -52,7 +67,12 @@ class ProductoController extends Controller
 
         $producto->update($validatedata); //Actualizamos
 
-        return response()->json($producto); //Retornamos
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Producto actualizado correctamente.',
+            'datos' => $producto,
+        ], 200);
 
     }
 
@@ -63,7 +83,11 @@ class ProductoController extends Controller
     {
         $producto->delete(); //Borramos
 
-        return response()->json('Producto eliminado', 204); //Mostramos mensaje
+        return response()->json([
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Producto eliminado correctamente.',
+        ], 200);
 
 
     }
