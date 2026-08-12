@@ -72,7 +72,7 @@ POST: Crear un producto `http://127.0.0.1:8000/api/v1/productos`
 PUT: Actualizar un producto especifico `http://127.0.0.1:8000/api/v1/productos/1`
 DELETE: Borrar un producto especifico `http://127.0.0.1:8000/api/v1/productos/1`
 
-GET: Listar todos los categoria: `http://127.0.0.1:8000/api/v1/categorias`
+GET: Listar todas las categoria: `http://127.0.0.1:8000/api/v1/categorias`
 GET: Listar un categoria especifico: `http://127.0.0.1:8000/api/v1/categorias/1`
 POST: Crear un categoria `http://127.0.0.1:8000/api/v1/categorias`
 PUT: Actualizar un categoria especifico `http://127.0.0.1:8000/api/v1/categorias/1`

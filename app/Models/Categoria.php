@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Producto;
 use Illuminate\Database\Eloquent\Model;
 
 class Categoria extends Model
 {
     //
     protected $fillable = ['nombre', 'descripcion'];
-    
+
     //Relacionamos con productos, una categoría puede tener varios productos
     public function productos()
     {

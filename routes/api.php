@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\Api\V1\ProductoController;
+use App\Http\Controllers\Api\V1\CategoriaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,28 +13,10 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1')->group(function() {
 
     //PRODUCTOS
-    //Obtener todos los productos en formato JSON
-    Route::get('/productos', [ProductoController::class, 'index'])->name('api.productos');
-    //Crear un nuevo producto en la base de datos
-    Route::post('/productos', [ProductoController::class, 'store'])->name('api.productos.store');
-    //Muestra un producto específico en formato JSON
-    Route::get('/productos/{id}', [ProductoController::class, 'show'])->name('api.productos.show');
-    //Actualiza un producto específico en la base de datos
-    Route::put('/productos/{id}', [ProductoController::class, 'update'])->name('api.productos.update');
-    //Elimina un producto específico de la base de datos
-    Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])->name('api.productos.destroy');
+    Route::apiResource('productos',ProductoController::class);
 
     //CATEGORIAS
-    //Obtener todas las categorías en formato JSON
-    Route::get('/categorias', [CategoriaController::class, 'index'])->name('api.categorias');
-    //Crear una nueva categoría en la base de datos
-    Route::post('/categorias', [CategoriaController::class, 'store'])->name('api.categorias.store');
-    //Muestra una categoría específica en formato JSON
-    Route::get('/categorias/{id}', [CategoriaController::class, 'show'])->name('api.categorias.show');
-    //Actualiza una categoría en la base de datos
-    Route::put('/categorias/{id}', [CategoriaController::class, 'update'])->name('api.categorias.update');
-    //Elimina una categoría específica de la base de datos
-    Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy'])->name('api.categorias.destroy');
+    Route::apiResource('categorias',CategoriaController::class);
 
 
 });

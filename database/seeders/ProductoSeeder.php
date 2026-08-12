@@ -16,6 +16,7 @@ class ProductoSeeder extends Seeder
         //creamos un producto de ejemplo
         Producto::create([
             'nombre' => 'Teléfono inteligente',
+            'sku' => '123',
             'descripcion' => 'Un teléfono inteligente de última generación.',
             'categoria_id' => 1, // Asignamos la categoría de Electrónica
             'precio' => 699.99,
@@ -24,6 +25,7 @@ class ProductoSeeder extends Seeder
         //creamos otro producto de ejemplo
         Producto::create([
             'nombre' => 'Camiseta de algodón',
+            'sku' => '124',
             'descripcion' => 'Camiseta cómoda y ligera de algodón.',
             'categoria_id' => 2, // Asignamos la categoría de Ropa
             'precio' => 19.99,
