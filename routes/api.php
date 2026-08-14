@@ -13,24 +13,12 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1')->group(function() {
 
      // PRODUCTOS
-    Route::apiResource('productos', ProductoController::class)
-        ->missing(function (Request $request) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'Producto no encontrado.',
-            ], 404);
-        });
+    Route::apiResource('productos', ProductoController::class);
+        
 
     // CATEGORIAS
-    Route::apiResource('categorias', CategoriaController::class)
-        ->missing(function (Request $request) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'Categoría no encontrada.',
-            ], 404);
-        });
+    Route::apiResource('categorias', CategoriaController::class);
+        
 
 
 });
