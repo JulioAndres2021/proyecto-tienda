@@ -1,58 +1,596 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Proyecto tienda del curso CITIA de ALKEMY
+# Tienda en Línea - Entrega 2
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+¡Bienvenido al repositorio de la Tienda en Línea! Este proyecto es la segunda entrega de la aplicación, enfocada en la gestión base del catálogo de productos y su organización.
 
-## About Laravel
+## 🚀 Características de la Entrega 2
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Por el momento, el sistema cuenta con los siguientes módulos funcionales:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* **Gestión de Categorías**: Creación, lectura, actualización y eliminación (CRUD) para organizar el catálogo.
+* **Gestión de Productos**: Administración completa de los artículos de la tienda, vinculados a sus respectivas categorías.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Tecnologías Utilizadas
 
-## Learning Laravel
+* **PHP 8.4**
+* **Laravel 13**
+* **MySQL**  (Base de datos)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📦 Instalación y Configuración Local
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Seguí estos pasos para clonar y ejecutar el proyecto en tu entorno local:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+### 1. Clonar el repositorio
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com
+cd TU_REPOSITORIO
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Instalar dependencias
+```bash
+composer install
+npm install && npm run dev
+```
 
-## Contributing
+### 3. Configurar el entorno
+Copiá el archivo de ejemplo para crear tu archivo `.env`:
+```bash
+cp .env.example .env
+```
+Abrí el archivo `.env` y configurá las credenciales de tu base de datos:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nombre_de_tu_base_de_datos
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Generar la clave de la aplicación
+```bash
+php artisan key:generate
+```
 
-## Code of Conduct
+### 5. Ejecutar migraciones y seeders
+Crea las tablas de Productos y Categorías en la base de datos (y datos de prueba si los incluiste):
+```bash
+php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 6. Iniciar el servidor local
+```bash
+php artisan serve
+```
+Ya podés acceder a la aplicación desde tu navegador en `http://127.0.0.1:8000`.
 
-## Security Vulnerabilities
+### 7. PRODUCTOS API
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Endpoints
 
-## License
+| Method | Endpoint                     | Description          |
+| ------ | ---------------------------- | -------------------- |
+| GET    | /api/v1/productos            | List all products    |
+| GET    | /api/v1/productos/{producto} | Get a single product |
+| POST   | /api/v1/productos            | Create a new product |
+| PUT    | /api/v1/productos/{producto} | Update a product     |
+| DELETE | /api/v1/productos/{producto} | Delete a product     |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Listar productos
+
+GET /api/v1/productos
+
+Response:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Productos obtenidos correctamente.",
+	"datos": [
+		{
+			"id": 1,
+			"sku": "123",
+			"nombre": "Teléfono inteligente",
+			"descripcion": "Un teléfono inteligente de última generación.",
+			"precio": "699.99",
+			"stock": 50,
+			"categoria_id": 1,
+			"created_at": "2026-08-11T12:35:50.000000Z",
+			"updated_at": "2026-08-11T12:35:50.000000Z",
+			"categoria": {
+				"id": 1,
+				"nombre": "Electrónica",
+				"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
+				"created_at": "2026-08-11T12:35:50.000000Z",
+				"updated_at": "2026-08-11T12:35:50.000000Z"
+			}
+		},
+		{
+			"id": 3,
+			"sku": "125",
+			"nombre": "Producto nuevo 4",
+			"descripcion": "testeando el sistema.",
+			"precio": "1000.50",
+			"stock": 50,
+			"categoria_id": 1,
+			"created_at": "2026-08-11T12:49:30.000000Z",
+			"updated_at": "2026-08-11T12:49:30.000000Z",
+			"categoria": {
+				"id": 1,
+				"nombre": "Electrónica",
+				"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
+				"created_at": "2026-08-11T12:35:50.000000Z",
+				"updated_at": "2026-08-11T12:35:50.000000Z"
+			}
+		}
+	]
+}
+```
+
+GET /api/v1/productos/1
+
+Response:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Producto obtenido correctamente.",
+	"datos": {
+		"id": 1,
+		"sku": "123",
+		"nombre": "Teléfono inteligente",
+		"descripcion": "Un teléfono inteligente de última generación.",
+		"precio": "699.99",
+		"stock": 50,
+		"categoria_id": 1,
+		"created_at": "2026-08-11T12:35:50.000000Z",
+		"updated_at": "2026-08-11T12:35:50.000000Z"
+	}
+}
+```
+
+GET /api/v1/productos/999
+
+Response:
+
+```json
+{
+	"exito": false,
+	"codigo": 404,
+	"mensaje": "Producto no encontrado."
+}
+```
+
+Status Code: 404 Not Found
+
+### Crear un nuevo producto
+
+POST /api/v1/productos
+
+Request Body:
+
+```json
+{
+	"exito": true,
+	"codigo": 201,
+	"mensaje": "Producto creado correctamente.",
+	"datos": {
+		"nombre": "Teléfono inteligente",
+		"sku": "128",
+		"descripcion": "Un teléfono inteligente de última generación.",
+		"precio": "2000",
+		"stock": 10,
+		"categoria_id": 1,
+		"updated_at": "2026-08-12T12:42:16.000000Z",
+		"created_at": "2026-08-12T12:42:16.000000Z",
+		"id": 5
+	}
+}
+```
+
+Status Code: 201 Created
+
+### Actualizar un producto existente
+
+PUT /api/v1/productos/1
+
+Request Body:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Producto actualizado correctamente.",
+	"datos": {
+		"id": 1,
+		"sku": "PROD-123",
+		"nombre": "Teléfono inteligente editado",
+		"descripcion": "editado Un teléfono inteligente de última generación.",
+		"precio": "699.99",
+		"stock": 50,
+		"categoria_id": 1,
+		"created_at": "2026-08-11T12:35:50.000000Z",
+		"updated_at": "2026-08-12T13:24:39.000000Z"
+	}
+}
+```
+Actualizar un producto inexistente
+
+PUT /api/v1/productos/33
+
+```jason
+{
+	"exito": false,
+	"codigo": 404,
+	"mensaje": "Producto no encontrado."
+}
+```
+
+### Eliminar un producto
+
+DELETE /api/v1/productos/1
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Producto eliminado correctamente."
+}
+```
+Eliminar un producto inexistente
+
+DELETE /api/v1/productos/33
+
+```jason
+{
+	"exito": false,
+	"codigo": 404,
+	"mensaje": "Producto no encontrado."
+}
+```
+
+### 8. CATEGORIA API
+
+### Endpoints
+
+| Method | Endpoint                      | Description            |
+| ------ | ----------------------------- | ---------------------- |
+| GET    | /api/v1/categorias            | List all categorias    |
+| GET    | /api/v1/categorias/{categoria}| Get a single categoria |
+| POST   | /api/v1/categorias            | Create a new categoria |
+| PUT    | /api/v1/categorias/{categoria}| Update a categoria     |
+| DELETE | /api/v1/categorias/{categoria}| Delete a categoria     |
+
+### Listar categorias
+
+GET /api/v1/categorias
+
+Response:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Categorías obtenidas correctamente.",
+	"datos": [
+		{
+			"id": 1,
+			"nombre": "Electrónica",
+			"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
+			"created_at": "2026-08-11T12:35:50.000000Z",
+			"updated_at": "2026-08-11T12:35:50.000000Z"
+		},
+		{
+			"id": 4,
+			"nombre": "INDUMENTARIA",
+			"descripcion": "Ropa de vestir o calzado",
+			"created_at": "2026-08-12T11:27:40.000000Z",
+			"updated_at": "2026-08-12T11:27:40.000000Z"
+		},
+		{
+			"id": 5,
+			"nombre": "Categoria 5 EDITADA",
+			"descripcion": "Ropa y Calzado",
+			"created_at": "2026-08-12T11:28:12.000000Z",
+			"updated_at": "2026-08-12T11:35:27.000000Z"
+		},
+		{
+			"id": 7,
+			"nombre": "INDUMENTARIA DEPORTIVA",
+			"descripcion": null,
+			"created_at": "2026-08-12T11:39:22.000000Z",
+			"updated_at": "2026-08-12T11:39:22.000000Z"
+		},
+		{
+			"id": 8,
+			"nombre": "ELECTRONICA",
+			"descripcion": "Video Grabadora",
+			"created_at": "2026-08-12T11:40:56.000000Z",
+			"updated_at": "2026-08-12T11:40:56.000000Z"
+		}
+	]
+}
+```
+
+GET /api/v1/categorias/1
+
+Response:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Categoría obtenida correctamente.",
+	"datos": {
+		"id": 1,
+		"nombre": "Electrónica",
+		"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
+		"created_at": "2026-08-11T12:35:50.000000Z",
+		"updated_at": "2026-08-11T12:35:50.000000Z"
+	}
+}
+```
+
+GET /api/v1/categorias/999
+
+Response:
+
+```json
+{
+	"exito": false,
+	"codigo": 404,
+	"mensaje": "Categoría no encontrada."
+}
+```
+
+Status Code: 404 Not Found
+
+### Crear una nueva categoria
+
+POST /api/v1/categorias
+
+Request Body:
+
+```json
+{
+	"exito": true,
+	"codigo": 201,
+	"mensaje": "Categoría creada correctamente.",
+	"datos": {
+		"nombre": "Articulos Varios",
+		"descripcion": "Productos varios...etc",
+		"updated_at": "2026-08-12T15:18:38.000000Z",
+		"created_at": "2026-08-12T15:18:38.000000Z",
+		"id": 9
+	}
+}
+```
+Status Code: 201 Created
+
+### Actualizar una categoria existente
+
+PUT /api/v1/categorias/1
+
+Request Body:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Categoría actualizada correctamente.",
+	"datos": {
+		"id": 1,
+		"nombre": "Articulos Varios Editado",
+		"descripcion": "Productos varios...etc, editado.!",
+		"created_at": "2026-08-11T12:35:50.000000Z",
+		"updated_at": "2026-08-12T15:24:22.000000Z"
+	}
+}
+```
+Actualizar una categoria inexistente
+
+PUT /api/v1/categorias/33
+
+```json
+{
+	"exito": false,
+	"codigo": 404,
+	"mensaje": "Categoría no encontrada."
+}
+```
+
+### Eliminar una categoria
+
+DELETE /api/v1/categorias/1
+
+Request Body:
+
+```json
+{
+	"exito": true,
+	"codigo": 200,
+	"mensaje": "Categoría eliminada correctamente."
+}
+```
+
+Eliminar una categoria inexsistente
+
+DELETE /api/v1/categorias/11
+
+Request Body
+
+```json
+{
+	"exito": false,
+	"codigo": 404,
+	"mensaje": "Categoría no encontrada."
+}
+```
+
+
+
+
+
+
+
+
+### Resultados de respuesta
+```
+| Código | Uso                                           |
+| -----: | --------------------------------------------- |
+|  `200` | Consulta, modificación o eliminación correcta |
+|  `201` | Registro creado correctamente                 |
+|  `401` | No autenticado                                |
+|  `403` | No autorizado                                 |
+|  `404` | Recurso no encontrado                         |
+|  `422` | Error de validación                           |
+|  `500` | Error interno inesperado                      |
+
+```
+
+### 9. FORMREQUEST STORE
+
+Estructuras de control para validar datos en el metodo STORE
+
+StoreCategoriaRequest
+
+```
+public function rules(): array
+    {
+        return [
+             'nombre' => ['required','string','max:255'],
+             'descripcion' => ['required','string','max:200'],
+        ];
+    }
+
+    //Mensajes personalizados para cada acción.
+    public function messages()
+    {
+        return [
+            'nombre.required' => 'El nombre de la categoría es obligatorio.',
+            'descripcion.required' => 'La descripción es obligatoria.',
+        ];
+    }
+```   
+StoreProductoRequest
+
+```
+public function rules(): array
+    {
+        return [
+
+            'nombre' => ['required','string','max:255'],
+            'sku' => ['required','string','unique:productos,sku'],
+            'descripcion' => ['nullable','string','max:200'],
+            'precio' => ['required','numeric','min:0'],
+            'stock' => ['required','integer','min:0'],
+            'categoria_id' => ['required','exists:categorias,id'],
+        ];
+    }
+
+    //Mensajes personalizados para cada acción.
+    public function messages(): array
+    {
+        return [
+            'nombre.required' => 'El nombre del producto es obligatorio.',
+            'sku.required' => 'El SKU del producto es obligatorio.',
+            'sku.unique' => 'El SKU ingresado ya pertenece a otro producto.',
+            'precio.required' => 'El precio del producto es obligatorio.',
+            'stock.required' => 'El stock del producto es obligatorio.',
+            'categoria_id.required' => 'La categoría del producto es obligatoria.',
+            'categoria_id.exists' => 'La categoría seleccionada no existe.',
+        ];
+    }
+```
+### 9. FORMREQUEST UPDATE
+
+Estructuras de control para validar datos en el metodo UPDATE
+
+UpdateCategoriaRequest
+
+```
+public function rules(): array
+    {
+        return [
+            'nombre' => 'sometimes|required|string|max:255',
+            'descripcion' => 'sometimes|required|string',
+        ];
+    }
+```
+
+UpdateProductoRequest
+
+```
+public function rules(): array
+    {
+        return [
+            'nombre' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'sku' => [
+                'sometimes',
+                'required',
+                'string',
+                new ValidSku(),
+                Rule::unique('productos', 'sku')
+                    ->ignore($this->route('producto')->id),
+            ],
+
+            'descripcion' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:200'
+            ],
+
+            'precio' => [
+                'sometimes',
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'stock' => [
+                'sometimes',
+                'required',
+                'integer',
+                'min:0'
+            ],
+
+            'categoria_id' => [
+                'sometimes',
+                'required',
+                'exists:categorias,id'
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nombre.required' => 'El nombre del producto es obligatorio.',
+            'sku.required' => 'El SKU del producto es obligatorio.',
+            'sku.unique' => 'El SKU ingresado ya pertenece a otro producto.',
+            'descripcion.string' => 'La descripción debe ser un texto.',
+            'precio.required' => 'El precio del producto es obligatorio.',
+            'precio.numeric' => 'El precio debe ser un valor numérico.',
+            'precio.min' => 'El precio no puede ser menor a 0.',
+            'stock.required' => 'El stock del producto es obligatorio.',
+            'stock.integer' => 'El stock debe ser un número entero.',
+            'stock.min' => 'El stock no puede ser menor a 0.',
+            'categoria_id.required' => 'La categoría del producto es obligatoria.',
+            'categoria_id.exists' => 'La categoría seleccionada no existe.',
+        ];
+    }
+```
+
+## 👥 Autores
+* **Julio Andres** - *Desarrollo Completo* - [JulioAndres2021](https://github.com/JulioAndres2021/proyecto-tienda)
+
+
