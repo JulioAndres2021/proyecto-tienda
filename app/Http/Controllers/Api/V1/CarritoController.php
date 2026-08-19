@@ -15,10 +15,7 @@ class CarritoController extends Controller
 {
     public function __construct(private CarritoService $carritoService) {}
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): JsonResponse
+    public function mostrar(Request $request): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
 
@@ -42,14 +39,11 @@ class CarritoController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(AgregarProductoCarritoRequest $request): JsonResponse
+    public function agregar(AgregarProductoCarritoRequest $request): JsonResponse
     {
         $datos = $request->validated();
         $producto = Producto::findOrFail($datos['producto_id']);
-        $carrito = $this->carritoService->obtener($request, true);//Obtiene el token
+        $carrito = $this->carritoService->obtener($request, true);
 
         $item = ItemCarrito::where('carrito_id', $carrito->id)
             ->where('producto_id', $producto->id)
@@ -86,18 +80,7 @@ class CarritoController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): JsonResponse
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse
+    public function actualizar(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
 
@@ -139,10 +122,7 @@ class CarritoController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Request $request, Producto $producto): JsonResponse
+    public function eliminar(Request $request, Producto $producto): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
 
@@ -192,5 +172,4 @@ class CarritoController extends Controller
             'mensaje' => 'Carrito no encontrado. Enviá un X-Carrito-Token válido.',
         ], 404);
     }
-
 }
