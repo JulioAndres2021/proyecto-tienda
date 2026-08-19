@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemCarrito extends Model
 {
-    protected $table = 'items_carrito';
+    protected $table = 'item_carritos';
 
     protected $fillable = [
         'carrito_id',
