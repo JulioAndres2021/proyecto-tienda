@@ -450,7 +450,7 @@ Request Body
 
 ```
 
-### 9. FORMREQUEST STORE
+### 9. FORM-REQUEST STORE
 
 Estructuras de control para validar datos en el metodo STORE
 
@@ -504,7 +504,8 @@ public function rules(): array
         ];
     }
 ```
-### 9. FORMREQUEST UPDATE
+
+### 9. FORM-REQUEST UPDATE
 
 Estructuras de control para validar datos en el metodo UPDATE
 

@@ -13,12 +13,12 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1')->group(function() {
 
      // PRODUCTOS
-    Route::apiResource('productos', ProductoController::class);
-        
+    Route::apiResource('productos', ProductoController::class)->middleware('throttle:10,1');;
+
 
     // CATEGORIAS
-    Route::apiResource('categorias', CategoriaController::class);
-        
+    Route::apiResource('categorias', CategoriaController::class)->middleware('throttle:10,1');
+
 
 
 });
