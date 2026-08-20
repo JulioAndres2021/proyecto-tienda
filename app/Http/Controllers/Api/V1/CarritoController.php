@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ActualizarCantidadCarritoRequest;
 use App\Http\Requests\AgregarProductoCarritoRequest;
+use App\Http\Requests\ActualizarCantidadCarritoRequest;
 use App\Models\ItemCarrito;
 use App\Models\Producto;
 use App\Services\CarritoService;
@@ -13,7 +13,8 @@ use Illuminate\Http\Request;
 
 class CarritoController extends Controller
 {
-    public function __construct(private CarritoService $carritoService) {}
+    public function __construct(private CarritoService $carritoService) {
+    }
 
     public function mostrar(Request $request): JsonResponse
     {
@@ -21,11 +22,10 @@ class CarritoController extends Controller
 
         if (!$carrito) {
             return response()->json([
-                'exito' => true,
-                'codigo' => 200,
-                'mensaje' => 'El carrito está vacío.',
-                'datos' => ['items' => []],
-            ]);
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'No se encontró el carrito.',
+            ], 404);
         }
 
         $carrito->load('items.producto');
@@ -35,33 +35,44 @@ class CarritoController extends Controller
             'codigo' => 200,
             'mensaje' => 'Carrito obtenido correctamente.',
             'token_carrito' => $carrito->token,
-            'datos' => ['items' => $carrito->items],
+            'datos' => $carrito,
         ]);
     }
 
     public function agregar(AgregarProductoCarritoRequest $request): JsonResponse
     {
-        $datos = $request->validated();
-        $producto = Producto::findOrFail($datos['producto_id']);
-        $carrito = $this->carritoService->obtener($request, true);
+        $datos = $request->validated();//Validamos
 
-        $item = ItemCarrito::where('carrito_id', $carrito->id)
-            ->where('producto_id', $producto->id)
-            ->first();
+        $producto = Producto::findOrFail($datos['producto_id']);//Buscamos el producto
 
-        $cantidadFinal = ($item?->cantidad ?? 0) + $datos['cantidad'];
+        /*Si viene un token válido → usar ese carrito
+        Si no viene token → crear un carrito nuevo*/
+        $carrito = $this->carritoService->obtener($request,true);
 
+        //verificamos si el producto ya está en el carrito
+        $item = ItemCarrito::where('carrito_id', $carrito->id)->where('producto_id', $producto->id)->first();
+
+        //calculamos
+        $cantidadActual = $item?->cantidad ?? 0;
+
+        $cantidadFinal = $cantidadActual + $datos['cantidad'];
+
+        //validamos stock
         if ($cantidadFinal > $producto->stock) {
             return response()->json([
                 'exito' => false,
                 'codigo' => 422,
-                'mensaje' => 'Stock insuficiente para agregar esa cantidad.',
-                'errores' => ['stock' => ["Stock disponible: {$producto->stock}."]],
+                'mensaje' => 'Stock insuficiente.',
+                'errores' => [
+                    'stock' => [
+                        "Stock disponible: {$producto->stock}."
+                    ]
+                ],
             ], 422);
         }
 
         if ($item) {
-            $item->update(['cantidad' => $cantidadFinal, 'precio_unitario' => $producto->precio]);
+            $item->update(['cantidad' => $cantidadFinal,]);
         } else {
             $item = ItemCarrito::create([
                 'carrito_id' => $carrito->id,
@@ -71,12 +82,14 @@ class CarritoController extends Controller
             ]);
         }
 
+        $item->load('producto');
+
         return response()->json([
             'exito' => true,
             'codigo' => 201,
             'mensaje' => 'Producto agregado al carrito.',
             'token_carrito' => $carrito->token,
-            'datos' => $item->load('producto'),
+            'datos' => $item,
         ], 201);
     }
 
@@ -85,18 +98,11 @@ class CarritoController extends Controller
         $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return $this->carritoNoEncontrado();
-        }
-
-        $cantidad = $request->validated()['cantidad'];
-
-        if ($cantidad > $producto->stock) {
             return response()->json([
                 'exito' => false,
-                'codigo' => 422,
-                'mensaje' => 'Stock insuficiente para actualizar esa cantidad.',
-                'errores' => ['stock' => ["Stock disponible: {$producto->stock}."]],
-            ], 422);
+                'codigo' => 404,
+                'mensaje' => 'No se encontró el carrito.',
+            ], 404);
         }
 
         $item = ItemCarrito::where('carrito_id', $carrito->id)
@@ -107,18 +113,34 @@ class CarritoController extends Controller
             return response()->json([
                 'exito' => false,
                 'codigo' => 404,
-                'mensaje' => 'El producto no está en el carrito.',
+                'mensaje' => 'El producto no se encuentra en el carrito.',
             ], 404);
         }
 
-        $item->update(['cantidad' => $cantidad, 'precio_unitario' => $producto->precio]);
+        $cantidad = $request->validated()['cantidad'];
+
+        if ($cantidad > $producto->stock) {
+            return response()->json([
+                'exito' => false,
+                'codigo' => 422,
+                'mensaje' => 'Stock insuficiente.',
+                'errores' => [
+                    'stock' => [
+                        "Stock disponible: {$producto->stock}."
+                    ]
+                ],
+            ], 422);
+        }
+
+        $item->update(['cantidad' => $cantidad,]);
+
+        $item->load('producto');//carga la relacion del producto
 
         return response()->json([
             'exito' => true,
             'codigo' => 200,
             'mensaje' => 'Cantidad actualizada correctamente.',
-            'token_carrito' => $carrito->token,
-            'datos' => $item->load('producto'),
+            'datos' => $item,
         ]);
     }
 
@@ -127,21 +149,28 @@ class CarritoController extends Controller
         $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return $this->carritoNoEncontrado();
-        }
-
-        $eliminados = ItemCarrito::where('carrito_id', $carrito->id)
-            ->where('producto_id', $producto->id)
-            ->delete();
-
-        if (!$eliminados) {
             return response()->json([
                 'exito' => false,
                 'codigo' => 404,
-                'mensaje' => 'El producto no está en el carrito.',
+                'mensaje' => 'No se encontró el carrito.',
             ], 404);
         }
 
+        $item = ItemCarrito::where('carrito_id', $carrito->id)
+            ->where('producto_id', $producto->id)
+            ->first();
+
+        if (!$item) {
+            return response()->json([
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'El producto no se encuentra en el carrito.',
+            ], 404);
+        }
+
+        $item->delete();
+        
+        //retornamos
         return response()->json([
             'exito' => true,
             'codigo' => 200,
@@ -153,23 +182,20 @@ class CarritoController extends Controller
     {
         $carrito = $this->carritoService->obtener($request);
 
-        if ($carrito) {
-            $carrito->items()->delete();
+        if (!$carrito) {
+            return response()->json([
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'No se encontró el carrito.',
+            ], 404);
         }
+
+        $carrito->items()->delete();
 
         return response()->json([
             'exito' => true,
             'codigo' => 200,
             'mensaje' => 'Carrito vaciado correctamente.',
         ]);
-    }
-
-    private function carritoNoEncontrado(): JsonResponse
-    {
-        return response()->json([
-            'exito' => false,
-            'codigo' => 404,
-            'mensaje' => 'Carrito no encontrado. Enviá un X-Carrito-Token válido.',
-        ], 404);
     }
 }

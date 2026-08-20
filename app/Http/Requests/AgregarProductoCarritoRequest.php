@@ -26,5 +26,19 @@ class AgregarProductoCarritoRequest extends FormRequest
             'producto_id' => ['required', 'integer', 'exists:productos,id'],
             'cantidad' => ['required', 'integer', 'min:1'],
         ];
+
+    }
+
+     public function messages(): array
+    {
+        return [
+            'producto_id.required' => 'El producto es obligatorio.',
+            'producto_id.integer' => 'El producto debe ser válido.',
+            'producto_id.exists' => 'El producto seleccionado no existe.',
+
+            'cantidad.required' => 'La cantidad es obligatoria.',
+            'cantidad.integer' => 'La cantidad debe ser un número entero.',
+            'cantidad.min' => 'La cantidad debe ser al menos 1.',
+        ];
     }
 }

@@ -35,4 +35,6 @@ Route::prefix('v1')->group(function() {
 
     Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
 
+
+
 });

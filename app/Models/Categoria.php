@@ -10,10 +10,15 @@ class Categoria extends Model
 {
     //
     use HasFactory;
-    
+
     protected $fillable = ['nombre', 'descripcion'];
 
-    //Relacionamos con productos, una categoría puede tener varios productos
+
+    /*
+        categoria
+    │
+    ├── tiene varios productos
+    */
     public function productos()
     {
         return $this->hasMany(Producto::class);

@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 
 class ResumenCompraController extends Controller
 {
-    public function __construct(private CarritoService $carritoService) {}
+    public function __construct(private CarritoService $carritoService) {
+    }
 
     public function mostrar(Request $request): JsonResponse
     {
@@ -19,15 +20,17 @@ class ResumenCompraController extends Controller
             return response()->json([
                 'exito' => false,
                 'codigo' => 404,
-                'mensaje' => 'Carrito no encontrado. Enviá un X-Carrito-Token válido.',
+                'mensaje' => 'No se encontró el carrito.',
             ], 404);
         }
+
+        $resumen = $this->carritoService->resumen($carrito);
 
         return response()->json([
             'exito' => true,
             'codigo' => 200,
             'mensaje' => 'Resumen de compra calculado correctamente.',
-            'datos' => $this->carritoService->resumen($carrito),
+            'datos' => $resumen,
         ]);
     }
 }

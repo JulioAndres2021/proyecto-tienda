@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('cantidad');
             $table->decimal('precio_unitario', 10, 2);
             $table->timestamps();
-            $table->unique(['carrito_id', 'producto_id']);
+            $table->unique(['carrito_id', 'producto_id']);//El producto tiene que existir una sola vez dentro del carrito y simplemente actualicemos su cantidad.
         });
     }
 

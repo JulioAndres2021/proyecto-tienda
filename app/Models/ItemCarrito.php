@@ -15,6 +15,13 @@ class ItemCarrito extends Model
         'precio_unitario'
     ];
 
+    /*
+        itemcarrito
+    │
+    ├── pertenece a carrito
+    │
+    ├── pertenece a producto
+    */
     public function carrito()
     {
         return $this->belongsTo(Carrito::class);
