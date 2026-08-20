@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Api\V1\CarritoController;
 use App\Http\Controllers\Api\V1\CategoriaController;
+use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\ProductoController;
 use App\Http\Controllers\Api\V1\ResumenCompraController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 Route::get('/user', function (Request $request) {
@@ -35,6 +37,13 @@ Route::prefix('v1')->group(function() {
 
     Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
 
+    //RUTAS PARA CHEKOUT
+    
+    Route::get('checkout/revisar', [CheckoutController::class, 'revisar']);
+
+    Route::post('checkout/datos', [CheckoutController::class, 'registrarDatos']);
+
+    Route::post('checkout/confirmar', [CheckoutController::class, 'confirmar']);
 
 
 });
