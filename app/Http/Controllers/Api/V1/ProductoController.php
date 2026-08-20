@@ -7,9 +7,8 @@ use App\Http\Requests\StoreProductoRequest;
 use App\Http\Requests\UpdateProductoRequest;
 use App\Models\Producto;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
-use function Pest\Laravel\json;
+
 
 class ProductoController extends Controller
 {

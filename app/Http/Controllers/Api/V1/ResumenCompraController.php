@@ -12,6 +12,10 @@ class ResumenCompraController extends Controller
     public function __construct(private CarritoService $carritoService) {
     }
 
+    /*
+    | mostrar
+    |-muestra el resumen del carrito con los calculos-
+    */
     public function mostrar(Request $request): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
@@ -24,6 +28,7 @@ class ResumenCompraController extends Controller
             ], 404);
         }
 
+        //accede al servicio y llama al metodo y envia el carrito para calcular
         $resumen = $this->carritoService->resumen($carrito);
 
         return response()->json([

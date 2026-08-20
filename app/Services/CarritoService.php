@@ -60,6 +60,14 @@ class CarritoService
     {
         $carrito->load('items.producto');
 
+        /*
+        obtiene todos los productos del carrito.
+        sum(...) recorre cada item.
+        Para cada item calcula: cantidad × precio_unitario
+        precio_unitario se convierte a número decimal con (float).
+        round(..., 2) redondea el resultado a dos decimales
+        La función anónima function ($item) define el cálculo que se aplica a cada producto.
+        */
         $subtotal = round(
             $carrito->items->sum(function ($item) {
                 return $item->cantidad * (float) $item->precio_unitario;
@@ -67,12 +75,22 @@ class CarritoService
             2
         );
 
+        //calcula el impuesto
         $impuestos = round($subtotal * 0.21, 2);
 
+        /*
+        calcula el costo de envio
+        La condición verifica que:
+        El subtotal sea mayor que 0.
+        El subtotal sea menor que 50000.
+        Si ambas condiciones se cumplen, el envío cuesta $5000.00.
+        Si no se cumplen, el envío es gratis ($0.00).
+        */
         $costoEnvio = $subtotal > 0 && $subtotal < 50000
             ? 5000.00
             : 0.00;
 
+        //Calcula el total
         $total = round($subtotal + $impuestos + $costoEnvio, 2);
 
         return [

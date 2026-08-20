@@ -14,7 +14,6 @@ class Producto extends Model
 
     protected $fillable = ['nombre', 'sku' ,'descripcion', 'precio', 'stock', 'categoria_id'];
 
-    //Relacionamos con categorías, un producto pertenece a una categoria
     /*
         producto
     │

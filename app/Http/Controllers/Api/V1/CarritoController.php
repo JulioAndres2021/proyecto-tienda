@@ -13,9 +13,14 @@ use Illuminate\Http\Request;
 
 class CarritoController extends Controller
 {
+    //Usamos el constructor para obtener el token
     public function __construct(private CarritoService $carritoService) {
     }
 
+    /*
+    | mostrar
+    |-muestra un carrito con sus productos-
+    */
     public function mostrar(Request $request): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
@@ -39,6 +44,10 @@ class CarritoController extends Controller
         ]);
     }
 
+    /*
+    | agregar
+    |-agrega un producto al carrito-
+    */
     public function agregar(AgregarProductoCarritoRequest $request): JsonResponse
     {
         $datos = $request->validated();//Validamos
@@ -52,9 +61,8 @@ class CarritoController extends Controller
         //verificamos si el producto ya está en el carrito
         $item = ItemCarrito::where('carrito_id', $carrito->id)->where('producto_id', $producto->id)->first();
 
-        //calculamos
+        //si el producto ya estaba en el carrito, se acumula la cantidad; si no estaba, se parte desde cero.
         $cantidadActual = $item?->cantidad ?? 0;
-
         $cantidadFinal = $cantidadActual + $datos['cantidad'];
 
         //validamos stock
@@ -93,6 +101,10 @@ class CarritoController extends Controller
         ], 201);
     }
 
+    /*
+    | actualizar
+    |-actualiza un producto en el carrito-
+    */
     public function actualizar(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
@@ -107,7 +119,7 @@ class CarritoController extends Controller
 
         $item = ItemCarrito::where('carrito_id', $carrito->id)
             ->where('producto_id', $producto->id)
-            ->first();
+            ->first();//comprueba si el producto ya esta dentro de ese carrito
 
         if (!$item) {
             return response()->json([
@@ -117,7 +129,7 @@ class CarritoController extends Controller
             ], 404);
         }
 
-        $cantidad = $request->validated()['cantidad'];
+        $cantidad = $request->validated()['cantidad'];//valida si es correcto y la cantidad no supere el stock
 
         if ($cantidad > $producto->stock) {
             return response()->json([
@@ -132,7 +144,7 @@ class CarritoController extends Controller
             ], 422);
         }
 
-        $item->update(['cantidad' => $cantidad,]);
+        $item->update(['cantidad' => $cantidad,]);//actualiza la cantidad del producto
 
         $item->load('producto');//carga la relacion del producto
 
@@ -158,7 +170,7 @@ class CarritoController extends Controller
 
         $item = ItemCarrito::where('carrito_id', $carrito->id)
             ->where('producto_id', $producto->id)
-            ->first();
+            ->first();//comprueba si el producto ya esta dentro de ese carrito
 
         if (!$item) {
             return response()->json([
@@ -168,8 +180,8 @@ class CarritoController extends Controller
             ], 404);
         }
 
-        $item->delete();
-        
+        $item->delete();//items del carrito eliminado
+
         //retornamos
         return response()->json([
             'exito' => true,
@@ -190,7 +202,7 @@ class CarritoController extends Controller
             ], 404);
         }
 
-        $carrito->items()->delete();
+        $carrito->items()->delete();//borra el carrito
 
         return response()->json([
             'exito' => true,
