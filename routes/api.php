@@ -1,9 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\V1\ProductoController;
+use App\Http\Controllers\Api\V1\CarritoController;
 use App\Http\Controllers\Api\V1\CategoriaController;
+use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\ProductoController;
+use App\Http\Controllers\Api\V1\ResumenCompraController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -13,12 +18,32 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1')->group(function() {
 
      // PRODUCTOS
-    Route::apiResource('productos', ProductoController::class);
-        
+    Route::apiResource('productos', ProductoController::class)->middleware('throttle:10,1');;
+
 
     // CATEGORIAS
-    Route::apiResource('categorias', CategoriaController::class);
-        
+    Route::apiResource('categorias', CategoriaController::class)->middleware('throttle:10,1');
+
+    //RUTAS PARA CARRITO
+    Route::get('carrito', [CarritoController::class, 'mostrar']);
+
+    Route::post('carrito/productos', [CarritoController::class, 'agregar']);
+
+    Route::put('carrito/productos/{producto}', [CarritoController::class, 'actualizar']);
+
+    Route::delete('carrito/productos/{producto}', [CarritoController::class, 'eliminar']);
+
+    Route::delete('carrito', [CarritoController::class, 'vaciar']);
+
+    Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
+
+    //RUTAS PARA CHEKOUT
+    
+    Route::get('checkout/revisar', [CheckoutController::class, 'revisar']);
+
+    Route::post('checkout/datos', [CheckoutController::class, 'registrarDatos']);
+
+    Route::post('checkout/confirmar', [CheckoutController::class, 'confirmar']);
 
 
 });

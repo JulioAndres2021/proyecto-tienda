@@ -1,10 +1,16 @@
 <?php
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,34 +23,49 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
-        );
-        
-        // Renderizar respuestas JSON personalizadas
-        $exceptions->render(function (Throwable $e, Request $request) {
-            
-            // Validar que la petición sea de API o espere JSON
-            if ($request->is('api/*') || $request->expectsJson()) {
-                
-                // Controlar error 404
-                if ($e instanceof NotFoundHttpException) {
-                    return response()->json([
-                        'codigo'  => 404,
-                        'mensaje' => 'Recurso no encontrado.'
-                    ], 404);
-                }
+        /*
+        Manejo de errores
+        */
 
-                // Controlar error 500 (y cualquier otra excepción no controlada)
-                // En producción oculta el mensaje real por seguridad
-                $isProduction = app()->environment('production');
-                
+        $exceptions->render(function (ValidationException $e, $request) {
+            if ($request->is('api/*')) {
                 return response()->json([
-                    'codigo'  => 500,
-                    'mensaje' => 'Error interno del servidor.',
-                    'error'   => "[]"
-                ], 500);
+                    'exito' => false,
+                    'codigo' => 422,
+                    'mensaje' => 'Los datos enviados no son válidos.',
+                    'errores' => $e->errors(),
+                ], 422);
             }
         });
-        
-    })->create();
+
+        $exceptions->render(function (ModelNotFoundException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'exito' => false,
+                    'codigo' => 404,
+                    'mensaje' => 'Recurso no encontrado.',
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'exito' => false,
+                    'codigo' => 404,
+                    'mensaje' => 'Ruta no encontrada.',
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (MethodNotAllowedHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'exito' => false,
+                    'codigo' => 405,
+                    'mensaje' => 'Método HTTP no permitido para esta ruta.',
+                ], 405);
+            }
+    });
+
+})->create();
