@@ -13,10 +13,14 @@ class CompraConfirmadaDTO
         public readonly float $impuestos,
         public readonly float $costoEnvio,
         public readonly float $total,
-    ) {}
+        public readonly array $detalles,
+    ) {
+    }
 
     public static function desdeCompra(Compra $compra): self
     {
+        $compra->load('detalles');
+
         return new self(
             compraId: $compra->id,
             estado: $compra->estado,
@@ -24,6 +28,15 @@ class CompraConfirmadaDTO
             impuestos: (float) $compra->impuestos,
             costoEnvio: (float) $compra->costo_envio,
             total: (float) $compra->total,
+            detalles: $compra->detalles->map(function ($detalle) {
+                return [
+                    'producto_id' => $detalle->producto_id,
+                    'nombre_producto' => $detalle->nombre_producto,
+                    'cantidad' => $detalle->cantidad,
+                    'precio_unitario' => (float) $detalle->precio_unitario,
+                    'subtotal' => (float) $detalle->subtotal,
+                ];
+            })->toArray(),
         );
     }
 
@@ -36,6 +49,7 @@ class CompraConfirmadaDTO
             'impuestos' => $this->impuestos,
             'costo_envio' => $this->costoEnvio,
             'total' => $this->total,
+            'detalles' => $this->detalles,
         ];
     }
 }
