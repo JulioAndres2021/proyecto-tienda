@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('direccion_envio');
             $table->string('ciudad');
             $table->string('codigo_postal');
-            $table->string('metodo_pago');
+            $table->string('metodo_pago')->default("efectivo");
             $table->timestamps();
         });
     }

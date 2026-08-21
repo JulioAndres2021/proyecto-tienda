@@ -6,22 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('detalle_compras', function (Blueprint $table) {
+        Schema::create('detalles_compra', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('compra_id')->constrained('compras')->cascadeOnDelete();
+            $table->foreignId('producto_id')->nullable()->constrained('productos')->nullOnDelete();
+            $table->string('nombre_producto');
+            $table->unsignedInteger('cantidad');
+            $table->decimal('precio_unitario', 10, 2);
+            $table->decimal('subtotal', 10, 2);
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('detalle_compras');
+        Schema::dropIfExists('detalles_compra');
     }
 };
