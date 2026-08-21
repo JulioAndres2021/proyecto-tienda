@@ -1,595 +1,279 @@
-## Proyecto tienda del curso CITIA de ALKEMY
-# Tienda en Línea - Entrega 2
+# Proyecto Tienda - API Laravel
 
-¡Bienvenido al repositorio de la Tienda en Línea! Este proyecto es la segunda entrega de la aplicación, enfocada en la gestión base del catálogo de productos y su organización.
+API REST desarrollada en Laravel para la gestión básica de una tienda.
 
-## 🚀 Características de la Entrega 2
+## Funcionalidades
 
-Por el momento, el sistema cuenta con los siguientes módulos funcionales:
+-   CRUD de categorías y productos.
+-   Carrito persistente mediante `X-Carrito-Token`.
+-   Resumen de compra.
+-   Checkout.
+-   Validación y descuento de stock.
+-   DTOs.
+-   Respuestas JSON estandarizadas.
+-   Colección de Postman.
 
-* **Gestión de Categorías**: Creación, lectura, actualización y eliminación (CRUD) para organizar el catálogo.
-* **Gestión de Productos**: Administración completa de los artículos de la tienda, vinculados a sus respectivas categorías.
+## Instalación
 
-## 🛠️ Tecnologías Utilizadas
-
-* **PHP 8.4**
-* **Laravel 13**
-* **MySQL**  (Base de datos)
-
-## 📦 Instalación y Configuración Local
-
-Seguí estos pasos para clonar y ejecutar el proyecto en tu entorno local:
-
-### 1. Clonar el repositorio
-```bash
-git clone https://github.com
-cd TU_REPOSITORIO
-```
-
-### 2. Instalar dependencias
-```bash
+``` bash
 composer install
-npm install && npm run dev
-```
-
-### 3. Configurar el entorno
-Copiá el archivo de ejemplo para crear tu archivo `.env`:
-```bash
 cp .env.example .env
-```
-Abrí el archivo `.env` y configurá las credenciales de tu base de datos:
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=nombre_de_tu_base_de_datos
-DB_USERNAME=tu_usuario
-DB_PASSWORD=tu_contraseña
-```
-
-### 4. Generar la clave de la aplicación
-```bash
 php artisan key:generate
-```
-
-### 5. Ejecutar migraciones y seeders
-Crea las tablas de Productos y Categorías en la base de datos (y datos de prueba si los incluiste):
-```bash
 php artisan migrate --seed
-```
-
-### 6. Iniciar el servidor local
-```bash
 php artisan serve
 ```
-Ya podés acceder a la aplicación desde tu navegador en `http://127.0.0.1:8000`.
 
-### 7. PRODUCTOS API
+Configurar previamente la conexión MySQL en `.env`.
 
-### Endpoints
+Base de la API:
 
-| Method | Endpoint                     | Description          |
-| ------ | ---------------------------- | -------------------- |
-| GET    | /api/v1/productos            | List all products    |
-| GET    | /api/v1/productos/{producto} | Get a single product |
-| POST   | /api/v1/productos            | Create a new product |
-| PUT    | /api/v1/productos/{producto} | Update a product     |
-| DELETE | /api/v1/productos/{producto} | Delete a product     |
+``` text
+http://127.0.0.1:8000/api/v1
+```
 
-### Listar productos
+## Categorías
 
-GET /api/v1/productos
+  Método   Endpoint             Descripción
+  -------- -------------------- ----------------------
+  GET      `/categorias`        Listar categorías
+  GET      `/categorias/{id}`   Mostrar categoría
+  POST     `/categorias`        Crear categoría
+  PUT      `/categorias/{id}`   Actualizar categoría
+  DELETE   `/categorias/{id}`   Eliminar categoría
 
-Response:
+## Productos
 
-```json
+  Método   Endpoint            Descripción
+  -------- ------------------- ---------------------
+  GET      `/productos`        Listar productos
+  GET      `/productos/{id}`   Mostrar producto
+  POST     `/productos`        Crear producto
+  PUT      `/productos/{id}`   Actualizar producto
+  DELETE   `/productos/{id}`   Eliminar producto
+
+## Carrito
+
+El carrito se persiste en base de datos y se identifica mediante el
+header:
+
+``` text
+X-Carrito-Token: TOKEN
+```
+
+La primera vez que se agrega un producto la API genera el token. Debe
+reutilizarse en las peticiones siguientes.
+
+  Método   Endpoint                          Descripción
+  -------- --------------------------------- ---------------------
+  GET      `/carrito`                        Mostrar carrito
+  POST     `/carrito/productos`              Agregar producto
+  PUT      `/carrito/productos/{producto}`   Actualizar cantidad
+  DELETE   `/carrito/productos/{producto}`   Eliminar producto
+  DELETE   `/carrito`                        Vaciar carrito
+
+Ejemplo para agregar:
+
+``` json
 {
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Productos obtenidos correctamente.",
-	"datos": [
-		{
-			"id": 1,
-			"sku": "123",
-			"nombre": "Teléfono inteligente",
-			"descripcion": "Un teléfono inteligente de última generación.",
-			"precio": "699.99",
-			"stock": 50,
-			"categoria_id": 1,
-			"created_at": "2026-08-11T12:35:50.000000Z",
-			"updated_at": "2026-08-11T12:35:50.000000Z",
-			"categoria": {
-				"id": 1,
-				"nombre": "Electrónica",
-				"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
-				"created_at": "2026-08-11T12:35:50.000000Z",
-				"updated_at": "2026-08-11T12:35:50.000000Z"
-			}
-		},
-		{
-			"id": 3,
-			"sku": "125",
-			"nombre": "Producto nuevo 4",
-			"descripcion": "testeando el sistema.",
-			"precio": "1000.50",
-			"stock": 50,
-			"categoria_id": 1,
-			"created_at": "2026-08-11T12:49:30.000000Z",
-			"updated_at": "2026-08-11T12:49:30.000000Z",
-			"categoria": {
-				"id": 1,
-				"nombre": "Electrónica",
-				"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
-				"created_at": "2026-08-11T12:35:50.000000Z",
-				"updated_at": "2026-08-11T12:35:50.000000Z"
-			}
-		}
-	]
+  "producto_id": 9,
+  "cantidad": 2
 }
 ```
 
-GET /api/v1/productos/1
+Si el producto ya existe en el carrito, la cantidad enviada se suma a la
+actual. El stock se valida antes de agregar o actualizar.
 
-Response:
+## Resumen de compra
 
-```json
+``` http
+GET /carrito/resumen
+```
+
+Devuelve `subtotal`, `impuestos`, `costo_envio` y `total`.
+
+Reglas utilizadas:
+
+-   Impuestos: 21% del subtotal.
+-   Envío: \$5000 si el subtotal es mayor a 0 y menor a \$50000.
+-   Envío gratis desde \$50000.
+
+Ejemplo:
+
+``` json
 {
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Producto obtenido correctamente.",
-	"datos": {
-		"id": 1,
-		"sku": "123",
-		"nombre": "Teléfono inteligente",
-		"descripcion": "Un teléfono inteligente de última generación.",
-		"precio": "699.99",
-		"stock": 50,
-		"categoria_id": 1,
-		"created_at": "2026-08-11T12:35:50.000000Z",
-		"updated_at": "2026-08-11T12:35:50.000000Z"
-	}
+  "exito": true,
+  "codigo": 200,
+  "mensaje": "Resumen de compra calculado correctamente.",
+  "datos": {
+    "subtotal": 2385.90,
+    "impuestos": 501.04,
+    "costo_envio": 5000,
+    "total": 7886.94
+  }
 }
 ```
 
-GET /api/v1/productos/999
+## Checkout
 
-Response:
+El flujo es:
 
-```json
+1.  Revisar carrito.
+2.  Registrar datos de envío y pago.
+3.  Confirmar compra.
+
+### Revisar
+
+``` http
+GET /checkout/revisar
+```
+
+Valida que el carrito exista, tenga productos y disponga de stock.
+
+### Registrar datos
+
+``` http
+POST /checkout/datos
+```
+
+``` json
 {
-	"exito": false,
-	"codigo": 404,
-	"mensaje": "Producto no encontrado."
+  "nombre_cliente": "Cliente 1",
+  "email": "cliente1@gmail.com",
+  "direccion_envio": "Calle Sin Numero",
+  "ciudad": "General Pico",
+  "codigo_postal": "6360",
+  "metodo_pago": "efectivo"
 }
 ```
 
-Status Code: 404 Not Found
+Métodos permitidos: `tarjeta`, `transferencia`, `efectivo`.
 
-### Crear un nuevo producto
+### Confirmar
 
-POST /api/v1/productos
+``` http
+POST /checkout/confirmar
+```
 
-Request Body:
+Al confirmar se vuelve a validar el stock, se registra la compra y sus
+detalles, se descuenta inventario y el carrito pasa a estado `comprado`.
 
-```json
+## DTOs
+
+### DatosCheckoutDTO
+
+`app/DTOs/DatosCheckoutDTO.php`
+
+Estructura los datos de entrada del checkout: nombre, email, dirección,
+ciudad, código postal y método de pago.
+
+``` php
+DatosCheckoutDTO::desdeArray($datos);
+$dto->toArray();
+```
+
+### CompraConfirmadaDTO
+
+`app/DTOs/CompraConfirmadaDTO.php`
+
+Estructura la respuesta de una compra confirmada, incluyendo
+identificador, estado, importes y detalles.
+
+``` php
+CompraConfirmadaDTO::desdeCompra($compra);
+```
+
+## Inventario
+
+El stock se valida al agregar/actualizar productos y nuevamente antes de
+confirmar. Al confirmar se descuenta la cantidad comprada.
+
+Ejemplo:
+
+``` json
 {
-	"exito": true,
-	"codigo": 201,
-	"mensaje": "Producto creado correctamente.",
-	"datos": {
-		"nombre": "Teléfono inteligente",
-		"sku": "128",
-		"descripcion": "Un teléfono inteligente de última generación.",
-		"precio": "2000",
-		"stock": 10,
-		"categoria_id": 1,
-		"updated_at": "2026-08-12T12:42:16.000000Z",
-		"created_at": "2026-08-12T12:42:16.000000Z",
-		"id": 5
-	}
+  "exito": false,
+  "codigo": 422,
+  "mensaje": "Stock insuficiente.",
+  "errores": {
+    "stock": ["Stock disponible: 10."]
+  }
 }
 ```
 
-Status Code: 201 Created
+## Respuestas JSON
 
-### Actualizar un producto existente
+Las respuestas utilizan JSON y códigos HTTP adecuados.
 
-PUT /api/v1/productos/1
+  Código   Significado
+  -------- -------------------------------
+  200      Operación exitosa
+  201      Recurso creado
+  404      Recurso o ruta no encontrada
+  405      Método HTTP no permitido
+  422      Validación o regla de negocio
+  500      Error interno
 
-Request Body:
+## Base de datos
 
-```json
-{
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Producto actualizado correctamente.",
-	"datos": {
-		"id": 1,
-		"sku": "PROD-123",
-		"nombre": "Teléfono inteligente editado",
-		"descripcion": "editado Un teléfono inteligente de última generación.",
-		"precio": "699.99",
-		"stock": 50,
-		"categoria_id": 1,
-		"created_at": "2026-08-11T12:35:50.000000Z",
-		"updated_at": "2026-08-12T13:24:39.000000Z"
-	}
-}
-```
-Actualizar un producto inexistente
+Tablas principales:
 
-PUT /api/v1/productos/33
+-   `categorias`
+-   `productos`
+-   `carritos`
+-   `item_carritos`
+-   `datos_checkout`
+-   `compras`
+-   `detalles_compra`
 
-```jason
-{
-	"exito": false,
-	"codigo": 404,
-	"mensaje": "Producto no encontrado."
-}
+## Postman
+
+La colección se entrega en:
+
+``` text
+postman/Tienda_API.postman_collection.json
 ```
 
-### Eliminar un producto
+Variables:
 
-DELETE /api/v1/productos/1
+-   `base_url`
+-   `carrito_token`
 
-```json
-{
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Producto eliminado correctamente."
-}
-```
-Eliminar un producto inexistente
+Incluye pruebas de Categorías, Productos, Carrito, Resumen, Checkout y
+errores.
 
-DELETE /api/v1/productos/33
+Casos de error documentados:
 
-```jason
-{
-	"exito": false,
-	"codigo": 404,
-	"mensaje": "Producto no encontrado."
-}
-```
+-   Producto inexistente (`404`).
+-   Cantidad inválida (`422`).
+-   Stock insuficiente (`422`).
+-   Checkout sin datos (`422`).
+-   Ruta inexistente (`404`).
+-   Método HTTP inválido (`405`).
 
-### 8. CATEGORIA API
+## Flujo general
 
-### Endpoints
-
-| Method | Endpoint                      | Description            |
-| ------ | ----------------------------- | ---------------------- |
-| GET    | /api/v1/categorias            | List all categorias    |
-| GET    | /api/v1/categorias/{categoria}| Get a single categoria |
-| POST   | /api/v1/categorias            | Create a new categoria |
-| PUT    | /api/v1/categorias/{categoria}| Update a categoria     |
-| DELETE | /api/v1/categorias/{categoria}| Delete a categoria     |
-
-### Listar categorias
-
-GET /api/v1/categorias
-
-Response:
-
-```json
-{
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Categorías obtenidas correctamente.",
-	"datos": [
-		{
-			"id": 1,
-			"nombre": "Electrónica",
-			"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
-			"created_at": "2026-08-11T12:35:50.000000Z",
-			"updated_at": "2026-08-11T12:35:50.000000Z"
-		},
-		{
-			"id": 4,
-			"nombre": "INDUMENTARIA",
-			"descripcion": "Ropa de vestir o calzado",
-			"created_at": "2026-08-12T11:27:40.000000Z",
-			"updated_at": "2026-08-12T11:27:40.000000Z"
-		},
-		{
-			"id": 5,
-			"nombre": "Categoria 5 EDITADA",
-			"descripcion": "Ropa y Calzado",
-			"created_at": "2026-08-12T11:28:12.000000Z",
-			"updated_at": "2026-08-12T11:35:27.000000Z"
-		},
-		{
-			"id": 7,
-			"nombre": "INDUMENTARIA DEPORTIVA",
-			"descripcion": null,
-			"created_at": "2026-08-12T11:39:22.000000Z",
-			"updated_at": "2026-08-12T11:39:22.000000Z"
-		},
-		{
-			"id": 8,
-			"nombre": "ELECTRONICA",
-			"descripcion": "Video Grabadora",
-			"created_at": "2026-08-12T11:40:56.000000Z",
-			"updated_at": "2026-08-12T11:40:56.000000Z"
-		}
-	]
-}
+``` text
+Producto
+  ↓
+Agregar al carrito
+  ↓
+Actualizar / eliminar
+  ↓
+Resumen
+  ↓
+Revisar checkout
+  ↓
+Registrar envío y pago
+  ↓
+Confirmar compra
+  ↓
+Registrar compra y detalles
+  ↓
+Descontar stock
+  ↓
+Carrito comprado
 ```
 
-GET /api/v1/categorias/1
-
-Response:
-
-```json
-{
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Categoría obtenida correctamente.",
-	"datos": {
-		"id": 1,
-		"nombre": "Electrónica",
-		"descripcion": "Productos electrónicos como teléfonos, computadoras, televisores, etc.",
-		"created_at": "2026-08-11T12:35:50.000000Z",
-		"updated_at": "2026-08-11T12:35:50.000000Z"
-	}
-}
-```
-
-GET /api/v1/categorias/999
-
-Response:
-
-```json
-{
-	"exito": false,
-	"codigo": 404,
-	"mensaje": "Categoría no encontrada."
-}
-```
-
-Status Code: 404 Not Found
-
-### Crear una nueva categoria
-
-POST /api/v1/categorias
-
-Request Body:
-
-```json
-{
-	"exito": true,
-	"codigo": 201,
-	"mensaje": "Categoría creada correctamente.",
-	"datos": {
-		"nombre": "Articulos Varios",
-		"descripcion": "Productos varios...etc",
-		"updated_at": "2026-08-12T15:18:38.000000Z",
-		"created_at": "2026-08-12T15:18:38.000000Z",
-		"id": 9
-	}
-}
-```
-Status Code: 201 Created
-
-### Actualizar una categoria existente
-
-PUT /api/v1/categorias/1
-
-Request Body:
-
-```json
-{
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Categoría actualizada correctamente.",
-	"datos": {
-		"id": 1,
-		"nombre": "Articulos Varios Editado",
-		"descripcion": "Productos varios...etc, editado.!",
-		"created_at": "2026-08-11T12:35:50.000000Z",
-		"updated_at": "2026-08-12T15:24:22.000000Z"
-	}
-}
-```
-Actualizar una categoria inexistente
-
-PUT /api/v1/categorias/33
-
-```json
-{
-	"exito": false,
-	"codigo": 404,
-	"mensaje": "Categoría no encontrada."
-}
-```
-
-### Eliminar una categoria
-
-DELETE /api/v1/categorias/1
-
-Request Body:
-
-```json
-{
-	"exito": true,
-	"codigo": 200,
-	"mensaje": "Categoría eliminada correctamente."
-}
-```
-
-Eliminar una categoria inexsistente
-
-DELETE /api/v1/categorias/11
-
-Request Body
-
-```json
-{
-	"exito": false,
-	"codigo": 404,
-	"mensaje": "Categoría no encontrada."
-}
-```
-
-
-
-
-
-
-
-
-### Resultados de respuesta
-```
-| Código | Uso                                           |
-| -----: | --------------------------------------------- |
-|  `200` | Consulta, modificación o eliminación correcta |
-|  `201` | Registro creado correctamente                 |
-|  `401` | No autenticado                                |
-|  `403` | No autorizado                                 |
-|  `404` | Recurso no encontrado                         |
-|  `422` | Error de validación                           |
-|  `500` | Error interno inesperado                      |
-
-```
-
-### 9. FORM-REQUEST STORE
-
-Estructuras de control para validar datos en el metodo STORE
-
-StoreCategoriaRequest
-
-```
-public function rules(): array
-    {
-        return [
-             'nombre' => ['required','string','max:255'],
-             'descripcion' => ['required','string','max:200'],
-        ];
-    }
-
-    //Mensajes personalizados para cada acción.
-    public function messages()
-    {
-        return [
-            'nombre.required' => 'El nombre de la categoría es obligatorio.',
-            'descripcion.required' => 'La descripción es obligatoria.',
-        ];
-    }
-```   
-StoreProductoRequest
-
-```
-public function rules(): array
-    {
-        return [
-
-            'nombre' => ['required','string','max:255'],
-            'sku' => ['required','string','unique:productos,sku'],
-            'descripcion' => ['nullable','string','max:200'],
-            'precio' => ['required','numeric','min:0'],
-            'stock' => ['required','integer','min:0'],
-            'categoria_id' => ['required','exists:categorias,id'],
-        ];
-    }
-
-    //Mensajes personalizados para cada acción.
-    public function messages(): array
-    {
-        return [
-            'nombre.required' => 'El nombre del producto es obligatorio.',
-            'sku.required' => 'El SKU del producto es obligatorio.',
-            'sku.unique' => 'El SKU ingresado ya pertenece a otro producto.',
-            'precio.required' => 'El precio del producto es obligatorio.',
-            'stock.required' => 'El stock del producto es obligatorio.',
-            'categoria_id.required' => 'La categoría del producto es obligatoria.',
-            'categoria_id.exists' => 'La categoría seleccionada no existe.',
-        ];
-    }
-```
-
-### 9. FORM-REQUEST UPDATE
-
-Estructuras de control para validar datos en el metodo UPDATE
-
-UpdateCategoriaRequest
-
-```
-public function rules(): array
-    {
-        return [
-            'nombre' => 'sometimes|required|string|max:255',
-            'descripcion' => 'sometimes|required|string',
-        ];
-    }
-```
-
-UpdateProductoRequest
-
-```
-public function rules(): array
-    {
-        return [
-            'nombre' => [
-                'sometimes',
-                'required',
-                'string',
-                'max:255'
-            ],
-
-            'sku' => [
-                'sometimes',
-                'required',
-                'string',
-                new ValidSku(),
-                Rule::unique('productos', 'sku')
-                    ->ignore($this->route('producto')->id),
-            ],
-
-            'descripcion' => [
-                'sometimes',
-                'nullable',
-                'string',
-                'max:200'
-            ],
-
-            'precio' => [
-                'sometimes',
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'stock' => [
-                'sometimes',
-                'required',
-                'integer',
-                'min:0'
-            ],
-
-            'categoria_id' => [
-                'sometimes',
-                'required',
-                'exists:categorias,id'
-            ],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'nombre.required' => 'El nombre del producto es obligatorio.',
-            'sku.required' => 'El SKU del producto es obligatorio.',
-            'sku.unique' => 'El SKU ingresado ya pertenece a otro producto.',
-            'descripcion.string' => 'La descripción debe ser un texto.',
-            'precio.required' => 'El precio del producto es obligatorio.',
-            'precio.numeric' => 'El precio debe ser un valor numérico.',
-            'precio.min' => 'El precio no puede ser menor a 0.',
-            'stock.required' => 'El stock del producto es obligatorio.',
-            'stock.integer' => 'El stock debe ser un número entero.',
-            'stock.min' => 'El stock no puede ser menor a 0.',
-            'categoria_id.required' => 'La categoría del producto es obligatoria.',
-            'categoria_id.exists' => 'La categoría seleccionada no existe.',
-        ];
-    }
-```
 
 ## 👥 Autores
 * **Julio Andres** - *Desarrollo Completo* - [JulioAndres2021](https://github.com/JulioAndres2021/proyecto-tienda)
