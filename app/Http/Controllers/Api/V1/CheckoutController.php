@@ -23,39 +23,49 @@ class CheckoutController extends Controller
         $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return $this->carritoNoEncontrado();
+            return response()->json([
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'No se encontró el carrito.',
+            ], 404);
         }
 
-        $carrito->load('items.producto', 'datosCheckout');
+        $carrito->load('items.producto');
 
         if ($carrito->items->isEmpty()) {
             return response()->json([
                 'exito' => false,
                 'codigo' => 422,
-                'mensaje' => 'No se puede iniciar el checkout con el carrito vacío.',
+                'mensaje' => 'El carrito está vacío.',
             ], 422);
         }
 
-        $sinStock = $carrito->items->filter(fn ($item) => !$item->producto || $item->cantidad > $item->producto->stock);
-        $codigo = $sinStock->isEmpty() ? 200 : 422;
+        foreach ($carrito->items as $item) {
+            if ($item->cantidad > $item->producto->stock) {
+                return response()->json([
+                    'exito' => false,
+                    'codigo' => 422,
+                    'mensaje' => 'Hay productos sin stock suficiente.',
+                    'errores' => [
+                        'stock' => [
+                            "Stock insuficiente para {$item->producto->nombre}."
+                        ],
+                    ],
+                ], 422);
+            }
+        }
+
+        $resumen = $this->carritoService->resumen($carrito);
 
         return response()->json([
-            'exito' => $sinStock->isEmpty(),
-            'codigo' => $codigo,
-            'mensaje' => $sinStock->isEmpty()
-                ? 'Carrito listo para continuar con la compra.'
-                : 'Hay productos sin stock suficiente.',
+            'exito' => true,
+            'codigo' => 200,
+            'mensaje' => 'Carrito listo para continuar con la compra.',
             'datos' => [
                 'items' => $carrito->items,
-                'resumen' => $this->carritoService->resumen($carrito),
-                'datos_checkout' => $carrito->datosCheckout,
-                'problemas_stock' => $sinStock->map(fn ($item) => [
-                    'producto_id' => $item->producto_id,
-                    'cantidad_solicitada' => $item->cantidad,
-                    'stock_disponible' => $item->producto?->stock ?? 0,
-                ])->values(),
+                'resumen' => $resumen,
             ],
-        ], $codigo);
+        ]);
     }
 
     public function registrarDatos(DatosCheckoutRequest $request): JsonResponse
@@ -85,16 +95,23 @@ class CheckoutController extends Controller
         $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return $this->carritoNoEncontrado();
+            return response()->json([
+                'exito' => false,
+                'codigo' => 404,
+                'mensaje' => 'No se encontró el carrito.',
+            ], 404);
         }
 
-        $carrito->load('items.producto', 'datosCheckout');
+        $carrito->load([
+            'items.producto',
+            'datosCheckout',
+        ]);
 
         if ($carrito->items->isEmpty()) {
             return response()->json([
                 'exito' => false,
                 'codigo' => 422,
-                'mensaje' => 'No se puede confirmar una compra con el carrito vacío.',
+                'mensaje' => 'El carrito está vacío.',
             ], 422);
         }
 
@@ -102,18 +119,20 @@ class CheckoutController extends Controller
             return response()->json([
                 'exito' => false,
                 'codigo' => 422,
-                'mensaje' => 'Primero debés registrar los datos de envío y pago.',
+                'mensaje' => 'Primero debe registrar los datos de checkout.',
             ], 422);
         }
 
         foreach ($carrito->items as $item) {
-            if (!$item->producto || $item->cantidad > $item->producto->stock) {
+            if ($item->cantidad > $item->producto->stock) {
                 return response()->json([
                     'exito' => false,
                     'codigo' => 422,
-                    'mensaje' => 'No hay stock suficiente para confirmar la compra.',
+                    'mensaje' => 'Hay productos sin stock suficiente.',
                     'errores' => [
-                        'stock' => ["Producto ID {$item->producto_id}: solicitado {$item->cantidad}, disponible ".($item->producto?->stock ?? 0).'.'],
+                        'stock' => [
+                            "Stock insuficiente para {$item->producto->nombre}."
+                        ],
                     ],
                 ], 422);
             }
@@ -121,62 +140,59 @@ class CheckoutController extends Controller
 
         $resumen = $this->carritoService->resumen($carrito);
 
-        try {
-            $compra = DB::transaction(function () use ($carrito, $resumen) {
-                $datosCheckout = $carrito->datosCheckout;
-                $compra = Compra::create([
-                    'carrito_id' => $carrito->id,
-                    'nombre_cliente' => $datosCheckout->nombre_cliente,
-                    'email' => $datosCheckout->email,
-                    'direccion_envio' => $datosCheckout->direccion_envio,
-                    'ciudad' => $datosCheckout->ciudad,
-                    'codigo_postal' => $datosCheckout->codigo_postal,
-                    'metodo_pago' => $datosCheckout->metodo_pago,
-                    'subtotal' => $resumen['subtotal'],
-                    'impuestos' => $resumen['impuestos'],
-                    'costo_envio' => $resumen['costo_envio'],
-                    'total' => $resumen['total'],
-                    'estado' => 'confirmada',
+        $compra = DB::transaction(function () use (
+            $carrito,
+            $resumen
+        ) {
+            $datos = $carrito->datosCheckout;
+
+            $compra = Compra::create([
+                'carrito_id' => $carrito->id,
+                'nombre_cliente' => $datos->nombre_cliente,
+                'email' => $datos->email,
+                'direccion_envio' => $datos->direccion_envio,
+                'ciudad' => $datos->ciudad,
+                'codigo_postal' => $datos->codigo_postal,
+                'metodo_pago' => $datos->metodo_pago,
+                'subtotal' => $resumen['subtotal'],
+                'impuestos' => $resumen['impuestos'],
+                'costo_envio' => $resumen['costo_envio'],
+                'total' => $resumen['total'],
+                'estado' => 'confirmada',
+            ]);
+
+            foreach ($carrito->items as $item) {
+                $compra->detalles()->create([
+                    'producto_id' => $item->producto->id,
+                    'nombre_producto' => $item->producto->nombre,
+                    'cantidad' => $item->cantidad,
+                    'precio_unitario' => $item->precio_unitario,
+                    'subtotal' => round(
+                        $item->cantidad * (float) $item->precio_unitario,
+                        2
+                    ),
                 ]);
 
-                foreach ($carrito->items as $item) {
-                    $producto = $item->producto()->lockForUpdate()->first();
+                $item->producto->decrement(
+                    'stock',
+                    $item->cantidad
+                );
+            }
 
-                    if (!$producto || $item->cantidad > $producto->stock) {
-                        throw new RuntimeException('El stock cambió durante la confirmación de la compra.');
-                    }
+            $carrito->update([
+                'estado' => 'comprado',
+            ]);
 
-                    $compra->detalles()->create([
-                        'producto_id' => $producto->id,
-                        'nombre_producto' => $producto->nombre,
-                        'cantidad' => $item->cantidad,
-                        'precio_unitario' => $item->precio_unitario,
-                        'subtotal' => round($item->cantidad * (float) $item->precio_unitario, 2),
-                    ]);
+            return $compra;
+        });
 
-                    $producto->decrement('stock', $item->cantidad);
-                }
-
-                $carrito->items()->delete();
-                $carrito->update(['estado' => 'comprado']);
-
-                return $compra;
-            });
-        } catch (RuntimeException $e) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 409,
-                'mensaje' => $e->getMessage(),
-            ], 409);
-        }
-
-        $respuesta = CompraConfirmadaDTO::desdeCompra($compra);
+        $dto = CompraConfirmadaDTO::desdeCompra($compra);
 
         return response()->json([
             'exito' => true,
             'codigo' => 201,
             'mensaje' => 'Compra confirmada correctamente.',
-            'datos' => $respuesta->toArray(),
+            'datos' => $dto->toArray(),
         ], 201);
     }
 
