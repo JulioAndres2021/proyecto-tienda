@@ -1,0 +1,1278 @@
+{
+  "info": {
+    "_postman_id": "acbc4035-ea77-4b8f-914b-73321a0d6bb3",
+    "name": "Tienda_API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43807015",
+    "_collection_link": "https://go.postman.co/collection/43807015-acbc4035-ea77-4b8f-914b-73321a0d6bb3?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Categorias",
+      "item": [
+        {
+          "name": "Crear categorias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"categoria_id\", jsonData.data.id);",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"data has required fields\", function () {",
+                  "    pm.expect(jsonData.data).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"nombre\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"descripcion\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"created_at\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "pm.test(\"data.nombre equals 'CATEGORIA NUEVA CREADA'\", function () {",
+                  "    pm.expect(jsonData.data.nombre).to.eql(\"CATEGORIA NUEVA CREADA\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"CATEGORIA NUEVA CREADA\",\r\n    \"descripcion\": \"Descripcion categoria nueva creada\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categorias",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categorias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar categorias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 1000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "pm.test(\"data is an array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Each item in data has id, nombre, descripcion, created_at, updated_at\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(function (item) {",
+                  "        pm.expect(item).to.have.property(\"id\");",
+                  "        pm.expect(item).to.have.property(\"nombre\");",
+                  "        pm.expect(item).to.have.property(\"descripcion\");",
+                  "        pm.expect(item).to.have.property(\"created_at\");",
+                  "        pm.expect(item).to.have.property(\"updated_at\");",
+                  "    });",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/categorias",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar categoria",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"data has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"nombre\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"descripcion\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"created_at\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "pm.test(\"data.id matches categoria_id variable\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.id).to.eql(pm.collectionVariables.get(\"categoria_id\"));",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"CATEGORIA NUEVA CREADA\",\r\n    \"descripcion\": \"Descripcion categoria nueva creada\"\r\n}"
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categorias/{{categoria_id}}",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categorias",
+                "{{categoria_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar categoria",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"data has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"nombre\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"descripcion\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"created_at\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "pm.test(\"data.nombre equals 'CATEGORIA NUEVA CREADA EDITADA'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.nombre).to.eql(\"CATEGORIA NUEVA CREADA EDITADA\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"CATEGORIA NUEVA CREADA EDITADA\",\r\n    \"descripcion\": \"Descripcion categoria nueva creada EDITADA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categorias/{{categoria_id}}",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categorias",
+                "{{categoria_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar categoria",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body has a status field equal to 'success'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");",
+                  "});",
+                  "pm.test(\"Response body has a message field that is a string\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.be.a(\"string\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categorias/{{categoria_id}}",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categorias",
+                "{{categoria_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar categoria inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body has a 'codigo' field equal to 404\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.codigo).to.eql(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body has a 'mensaje' field that is a string\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.mensaje).to.be.a(\"string\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categorias/111",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categorias",
+                "111"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Listar productos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body has a 'data' property\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "pm.test(\"'data' is an array\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Each item in 'data' has required properties\", function () {",
+                  "    const json = pm.response.json();",
+                  "    json.data.forEach(function (item) {",
+                  "        pm.expect(item).to.have.property(\"id\");",
+                  "        pm.expect(item).to.have.property(\"nombre\");",
+                  "        pm.expect(item).to.have.property(\"descripcion\");",
+                  "        pm.expect(item).to.have.property(\"created_at\");",
+                  "        pm.expect(item).to.have.property(\"updated_at\");",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear productos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"producto_id\", jsonData.data.id);",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"data has required fields\", function () {",
+                  "    pm.expect(jsonData.data).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"nombre\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"descripcion\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"created_at\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "pm.test(\"data.nombre equals 'PRODUCTO NUEVO CREADO'\", function () {",
+                  "    pm.expect(jsonData.data.nombre).to.eql(\"PRODUCTO NUEVO CREADO\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"PRODUCTO NUEVO CREADO\", \r\n    \"descripcion\": \"Descripcion producto nuevo creado\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST http://127.0.0.1:8000/api/v1/productos -H \"Accept: application/json\" -H \"Content-Type: application/json\" -d \"{\\\"nombre\\\": \\\"PRODUCTO NUEVO CREADO\\\", \\\"descripcion\\\": \\\"Descripcion producto nuevo creado\\\"}\""
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"data has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"nombre\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"descripcion\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"created_at\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "pm.test(\"data.id matches producto_id variable\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.id).to.eql(pm.collectionVariables.get(\"producto_id\"));",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/{{producto_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X GET \"http://127.0.0.1:8000/api/v1/productos/{{producto_id}}\" -H \"Accept: application/json\""
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body has a data property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"data has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property(\"id\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"nombre\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"descripcion\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"created_at\");",
+                  "    pm.expect(jsonData.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "pm.test(\"data.nombre equals 'PRODUCTO NUEVO CREADO EDITADO'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.nombre).to.eql(\"PRODUCTO NUEVO CREADO EDITADO\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\": \"PRODUCTO NUEVO CREADO EDITADO\", \"descripcion\": \"Descripcion producto nuevo creado EDITADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/productos/{{producto_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X PUT \"http://127.0.0.1:8000/api/v1/productos/{{producto_id}}\" -H \"Accept: application/json\" -H \"Content-Type: application/json\" -d \"{\\\"nombre\\\": \\\"PRODUCTO NUEVO CREADO EDITADO\\\", \\\"descripcion\\\": \\\"Descripcion producto nuevo creado EDITADO\\\"}\""
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar producto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response body has a status field equal to 'success'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");",
+                  "});",
+                  "pm.test(\"Response body has a message field that is a string\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.be.a(\"string\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/{{producto_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos",
+                "{{producto_id}}"
+              ]
+            },
+            "description": "Generated from cURL: curl -X DELETE \"http://127.0.0.1:8000/api/v1/productos/{{producto_id}}\" -H \"Accept: application/json\""
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar producto inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"Response body has a 'codigo' field equal to 404\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.codigo).to.eql(404);",
+                  "});",
+                  "pm.test(\"Response body has a 'mensaje' field that is a string\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.mensaje).to.be.a(\"string\");",
+                  "});",
+                  "pm.test(\"Response time is under 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/99999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos",
+                "99999"
+              ]
+            },
+            "description": "Generated from cURL: curl -X DELETE \"http://127.0.0.1:8000/api/v1/productos/99999\" -H \"Accept: application/json\""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Carrito",
+      "item": [
+        {
+          "name": "Agregar al carrito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"producto_id\": 1,\r\n    \"cantidad\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/carrito/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito",
+                "productos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Carrito",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar item en carrito",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/carrito/productos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito",
+                "productos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar item carrito existente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/carrito/productos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito",
+                "productos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Vaciar carrito existente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/carrito",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Resumen",
+      "item": [
+        {
+          "name": "Resumen de la compra",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/carrito/resumen",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito",
+                "resumen"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "CheckOut",
+      "item": [
+        {
+          "name": "Revisar compra",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Agrega cliente a la compra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre_cliente\": \"Cliente 1\",\r\n    \"email\": \"cliente1@gmail.com\",\r\n    \"direccion_envio\": \"Calle 20 Nro 500\",\r\n    \"ciudad\": \"General Pico\",\r\n    \"codigo_postal\": \"6360\",\r\n    \"metodo_pago\": \"efectivo\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/checkout/datos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout",
+                "datos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirmar compra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/checkout/confirmar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout",
+                "confirmar"
+              ]
+            },
+            "description": "Confirma la compra del carrito activo, valida nuevamente el stock, registra la compra y sus detalles, descuenta el inventario y cambia el estado del carrito a comprado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Errores",
+      "item": [
+        {
+          "name": "Producto inexistente",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Cantidad inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"producto_id\": 9,\r\n    \"cantidad\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/carrito/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito",
+                "productos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Stock insuficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"producto_id\": 9,\r\n    \"cantidad\": 99999\r\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/carrito/productos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "carrito",
+                "productos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Checkout sin datos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/checkout/confirmar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout",
+                "confirmar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ruta inexistente",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/ruta-inexistene",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ruta-inexistene"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Método HTTP inválido",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/checkout/revisar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout",
+                "revisar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "X-Carrito-Token",
+      "value": ""
+    },
+    {
+      "key": "producto",
+      "value": ""
+    }
+  ]
+}

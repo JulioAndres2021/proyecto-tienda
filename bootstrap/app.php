@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        /*
+        Manejo de errores
+        */
 
         $exceptions->render(function (ValidationException $e, $request) {
             if ($request->is('api/*')) {

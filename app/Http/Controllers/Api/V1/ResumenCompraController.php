@@ -14,11 +14,11 @@ class ResumenCompraController extends Controller
 
     /*
     | mostrar
-    |-muestra el resumen del carrito con los calculos-
+    |-muestra el resumen del carrito.-
     */
     public function mostrar(Request $request): JsonResponse
     {
-        $carrito = $this->carritoService->obtener($request);
+        $carrito = $this->carritoService->obtener($request);//obtenemos el token
 
         if (!$carrito) {
             return response()->json([
