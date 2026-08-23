@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductoRequest;
 use App\Http\Requests\UpdateProductoRequest;
+use App\Http\Resources\ProductoResource;
 use App\Models\Producto;
 use Illuminate\Http\JsonResponse;
 
@@ -47,14 +48,9 @@ class ProductoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Producto $producto)
+    public function show(Producto $producto): ProductoResource
     {
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Producto obtenido correctamente.',
-            'datos' => $producto,
-        ], 200);
+        return new ProductoResource($producto);
     }
 
     /**
@@ -66,12 +62,7 @@ class ProductoController extends Controller
 
         $producto->update($validatedata); //Actualizamos
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Producto actualizado correctamente.',
-            'datos' => $producto,
-        ], 200);
+        return ProductoResource::make($producto)->response()->setStatusCode(200);
 
     }
 
