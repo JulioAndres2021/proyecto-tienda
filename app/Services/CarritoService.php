@@ -35,31 +35,7 @@ class CarritoService
             'estado' => 'activo',
         ]);
     }
-
-    /* ----LOGICA DEL CARRITO--------
-    subtotal = suma de precio_unitario × cantidad
-
-    impuestos = subtotal × 21%
-
-    envío:
-    - si subtotal es mayor a 0 y menor a 50000 → $5000
-    - si subtotal es 50000 o más → gratis
-
-    total = subtotal + impuestos + envío
-    ----------EJEMPLO------------------
-    Producto A:
-    $10.000 × 2 = $20.000
-
-    Producto B:
-    $5.000 × 2 = $10.000
-
-    Subtotal:       30.000
-    Impuestos 21%:   6.300
-    Envío:           5.000
-    ----------------------
-    Total:           41.300
-
-    */
+    
     public function resumen(Carrito $carrito): array
     {
         $carrito->load('items.producto');
@@ -183,6 +159,34 @@ class CarritoService
                 ],
             ]);
         }
+    }
+
+    public function eliminarProducto(Carrito $carrito, Producto $producto): void 
+    {
+        $item = ItemCarrito::where(
+            'carrito_id',
+            $carrito->id
+        )
+            ->where(
+                'producto_id',
+                $producto->id
+            )
+            ->first();
+
+        if (!$item) {
+            throw ValidationException::withMessages([
+                'producto' => [
+                    'El producto no se encuentra en el carrito.',
+                ],
+            ]);
+        }
+
+        $item->delete();
+    }
+
+    public function vaciar(Carrito $carrito): void
+    {
+        $carrito->items()->delete();
     }
 
 

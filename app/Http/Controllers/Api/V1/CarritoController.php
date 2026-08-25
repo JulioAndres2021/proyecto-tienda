@@ -120,23 +120,15 @@ class CarritoController extends Controller
             );
         }
 
-        $item = ItemCarrito::where('carrito_id', $carrito->id)
-            ->where(
-                'producto_id',
-                $producto->id
-            )
-            ->first();
+        $this->carritoService->eliminarProducto(
+            $carrito,
+            $producto
+        );
 
-        if (!$item) {
-            return ApiResponse::error(
-                'El producto no se encuentra en el carrito.',
-                404
-            );
-        }
-
-        $item->delete();
-
-        return ApiResponse::success(null, 'Producto eliminado del carrito.');
+        return ApiResponse::success(
+            null,
+            'Producto eliminado del carrito.'
+        );
     }
 
     /*
@@ -154,8 +146,11 @@ class CarritoController extends Controller
             );
         }
 
-        $carrito->items()->delete();
+        $this->carritoService->vaciar($carrito);
 
-        return ApiResponse::success(null, 'Carrito vaciado correctamente.');
+        return ApiResponse::success(
+            null,
+            'Carrito vaciado correctamente.'
+        );
     }
 }
