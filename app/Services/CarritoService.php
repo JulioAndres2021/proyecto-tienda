@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\ItemCarrito;
+use App\Models\Producto;
+use Illuminate\Validation\ValidationException;
+
 use App\Models\Carrito;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -100,4 +104,86 @@ class CarritoService
             'total' => $total,
         ];
     }
+
+    public function agregarProducto(Carrito $carrito, Producto $producto, int $cantidad): ItemCarrito 
+    {
+        $item = ItemCarrito::where(
+            'carrito_id',
+            $carrito->id
+        )
+            ->where(
+                'producto_id',
+                $producto->id
+            )
+            ->first();
+
+        $cantidadActual = $item?->cantidad ?? 0;
+
+        $cantidadFinal = $cantidadActual + $cantidad;
+
+        $this->validarStock(
+            $producto,
+            $cantidadFinal
+        );
+
+        if ($item) {
+            $item->update([
+                'cantidad' => $cantidadFinal,
+            ]);
+        } else {
+            $item = ItemCarrito::create([
+                'carrito_id' => $carrito->id,
+                'producto_id' => $producto->id,
+                'cantidad' => $cantidad,
+                'precio_unitario' => $producto->precio,
+            ]);
+        }
+
+        return $item->load('producto');
+    }
+
+    public function actualizarCantidad(Carrito $carrito, Producto $producto, int $cantidad): ItemCarrito
+    {
+        $item = ItemCarrito::where(
+            'carrito_id',
+            $carrito->id
+        )
+            ->where(
+                'producto_id',
+                $producto->id
+            )
+            ->first();
+
+        if (!$item) {
+            throw ValidationException::withMessages([
+                'producto' => [
+                    'El producto no se encuentra en el carrito.',
+                ],
+            ]);
+        }
+
+        $this->validarStock(
+            $producto,
+            $cantidad
+        );
+
+        $item->update([
+            'cantidad' => $cantidad,
+        ]);
+
+        return $item->load('producto');
+    }
+
+    private function validarStock(Producto $producto, int $cantidad): void 
+    {
+        if ($cantidad > $producto->stock) {
+            throw ValidationException::withMessages([
+                'stock' => [
+                    "Stock disponible: {$producto->stock}.",
+                ],
+            ]);
+        }
+    }
+
+
 }

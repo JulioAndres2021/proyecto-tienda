@@ -46,8 +46,8 @@ class CarritoController extends Controller
     | agregar
     |-agrega un producto al carrito-
     */
-   public function agregar(AgregarProductoCarritoRequest $request): JsonResponse 
-   {
+    public function agregar(AgregarProductoCarritoRequest $request): JsonResponse 
+    {
         $data = AgregarProductoCarritoData::fromArray(
             $request->validated()
         );
@@ -56,52 +56,13 @@ class CarritoController extends Controller
             $data->productoId
         );
 
-        $carrito = $this->carritoService->obtener(
-            $request,
-            true
+        $carrito = $this->carritoService->obtener($request, true);
+
+        $item = $this->carritoService->agregarProducto(
+            $carrito,
+            $producto,
+            $data->cantidad
         );
-
-        $item = ItemCarrito::where(
-            'carrito_id',
-            $carrito->id
-        )
-            ->where(
-                'producto_id',
-                $producto->id
-            )
-            ->first();
-
-        $cantidadActual = $item?->cantidad ?? 0;
-
-        $cantidadFinal =
-            $cantidadActual + $data->cantidad;
-
-        if ($cantidadFinal > $producto->stock) {
-            return ApiResponse::error(
-                'Stock insuficiente.',
-                422,
-                [
-                    'stock' => [
-                        "Stock disponible: {$producto->stock}."
-                    ],
-                ]
-            );
-        }
-
-        if ($item) {
-            $item->update([
-                'cantidad' => $cantidadFinal,
-            ]);
-        } else {
-            $item = ItemCarrito::create([
-                'carrito_id' => $carrito->id,
-                'producto_id' => $producto->id,
-                'cantidad' => $data->cantidad,
-                'precio_unitario' => $producto->precio,
-            ]);
-        }
-
-        $item->load('producto');
 
         return ApiResponse::success(
             [
@@ -119,43 +80,29 @@ class CarritoController extends Controller
     */
     public function actualizar(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse 
     {
-        $data = ActualizarCantidadCarritoData::fromArray($request->validated());
+        $data = ActualizarCantidadCarritoData::fromArray(
+            $request->validated()
+        );
 
         $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return ApiResponse::error('No se encontró el carrito.', 404);
-        }
-
-        $item = ItemCarrito::where('carrito_id', $carrito->id)
-            ->where(
-                'producto_id',
-                $producto->id
-            )
-            ->first();
-
-        if (!$item) {return ApiResponse::error('El producto no se encuentra en el carrito.', 404);
-        }
-
-        if ($data->cantidad > $producto->stock) {
             return ApiResponse::error(
-                'Stock insuficiente.',
-                422,
-                [
-                    'stock' => [
-                        "Stock disponible: {$producto->stock}."
-                    ],
-                ]
+                'No se encontró el carrito.',
+                404
             );
         }
 
-        $item->update([
-            'cantidad' => $data->cantidad,
-        ]);
+        $item = $this->carritoService->actualizarCantidad(
+            $carrito,
+            $producto,
+            $data->cantidad
+        );
 
-        $item->load('producto');
-
-        return ApiResponse::success(new ItemCarritoResource($item), 'Cantidad actualizada correctamente.');
+        return ApiResponse::success(
+            new ItemCarritoResource($item),
+            'Cantidad actualizada correctamente.'
+        );
     }
     
     /*
