@@ -3,27 +3,31 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\DTOs\Categoria\CreateCategoriaData;
-use App\DTOs\Categoria\UpdateCategoriaData;
 use App\Http\Resources\CategoriaResource;
 use App\Http\Responses\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoriaRequest;
-use App\Http\Requests\StoreProductoRequest;
 use App\Http\Requests\UpdateCategoriaRequest;
 use App\Models\Categoria;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\DTOs\Categoria\UpdateCategoriaData;
+use App\Services\CategoriaService;
 
 class CategoriaController extends Controller
 {
+    public function __construct(private CategoriaService $categoriaService) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index(): JsonResponse
     {
-        $categorias = Categoria::all();
+        $categorias = $this->categoriaService->listar();
 
-        return ApiResponse::success(CategoriaResource::collection($categorias), 'Categorías obtenidas correctamente.');
+        return ApiResponse::success(
+            CategoriaResource::collection($categorias),
+            'Categorías obtenidas correctamente.'
+        );
     }
 
     /**
@@ -31,11 +35,17 @@ class CategoriaController extends Controller
      */
     public function store(StoreCategoriaRequest $request): JsonResponse 
     {
-        $data = CreateCategoriaData::fromArray($request->validated());
+        $data = CreateCategoriaData::fromArray(
+            $request->validated()
+        );
 
-        $categoria = Categoria::create($data->toArray());
+        $categoria = $this->categoriaService->crear($data);
 
-        return ApiResponse::success(new CategoriaResource($categoria), 'Categoría creada correctamente.', 201);
+        return ApiResponse::success(
+            new CategoriaResource($categoria),
+            'Categoría creada correctamente.',
+            201
+        );
     }
 
     /**
@@ -43,7 +53,10 @@ class CategoriaController extends Controller
      */
     public function show(Categoria $categoria): JsonResponse 
     {
-        return ApiResponse::success(new CategoriaResource($categoria), 'Categoría obtenida correctamente.');
+        return ApiResponse::success(
+            new CategoriaResource($categoria),
+            'Categoría obtenida correctamente.'
+        );
     }
 
     /**
@@ -51,19 +64,28 @@ class CategoriaController extends Controller
      */
     public function update(UpdateCategoriaRequest $request, Categoria $categoria): JsonResponse 
     {
-        $data = UpdateCategoriaData::fromArray($request->validated());
+        $data = UpdateCategoriaData::fromArray(
+            $request->validated()
+        );
 
-        $categoria->update($data->toArray());
+        $categoria = $this->categoriaService
+            ->actualizar(
+                $categoria,
+                $data
+            );
 
-        return ApiResponse::success(new CategoriaResource($categoria), 'Categoría actualizada correctamente.');
+        return ApiResponse::success(
+            new CategoriaResource($categoria),
+            'Categoría actualizada correctamente.'
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Categoria $categoria): JsonResponse 
-    {
-        $categoria->delete();
+   public function destroy(Categoria $categoria): JsonResponse 
+   {
+        $this->categoriaService->eliminar($categoria);
 
         return ApiResponse::success(null, 'Categoría eliminada correctamente.');
     }
