@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\V1\ProductoController;
 use App\Http\Controllers\Api\V1\ResumenCompraController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\V1\AuthController;
 
 
 Route::get('/user', function (Request $request) {
@@ -38,12 +38,34 @@ Route::prefix('v1')->group(function() {
     Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
 
     //RUTAS PARA CHEKOUT
-    
+
     Route::get('checkout/revisar', [CheckoutController::class, 'revisar']);
 
     Route::post('checkout/datos', [CheckoutController::class, 'registrarDatos']);
 
     Route::post('checkout/confirmar', [CheckoutController::class, 'confirmar']);
+
+    //RUTAS PUBLICAS
+    Route::prefix('auth')->group(function () {
+
+        Route::post('register', [AuthController::class, 'register']);
+
+        Route::post('login', [AuthController::class, 'login']);
+    });
+
+    //RUTAS QUE REQUIEREN JWT
+    Route::middleware('auth:api')->group(function () {
+
+        Route::prefix('auth')->group(function () {
+
+            Route::get('me', [AuthController::class, 'me']);
+
+            Route::post('logout', [AuthController::class, 'logout']);
+
+            Route::post('refresh', [AuthController::class, 'refresh']);
+        });
+
+    });
 
 
 });
