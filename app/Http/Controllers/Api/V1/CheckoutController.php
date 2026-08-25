@@ -41,30 +41,13 @@ class CheckoutController extends Controller
             );
         }
 
-        $carrito->load('items.producto');
+        $this->checkoutService->validarParaRevision(
+            $carrito
+        );
 
-        if ($carrito->items->isEmpty()) {
-            return ApiResponse::error(
-                'El carrito está vacío.',
-                422
-            );
-        }
-
-        foreach ($carrito->items as $item) {
-            if ($item->cantidad > $item->producto->stock) {
-                return ApiResponse::error(
-                    'Hay productos sin stock suficiente.',
-                    422,
-                    [
-                        'stock' => [
-                            "Stock insuficiente para {$item->producto->nombre}."
-                        ],
-                    ]
-                );
-            }
-        }
-
-        $resumen = $this->carritoService->resumen($carrito);
+        $resumen = $this->carritoService->resumen(
+            $carrito
+        );
 
         return ApiResponse::success(
             [

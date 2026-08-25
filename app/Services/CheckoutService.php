@@ -9,17 +9,16 @@ use Illuminate\Validation\ValidationException;
 
 class CheckoutService
 {
+    public function __construct(
+        private CarritoService $carritoService
+    ) {
+    }
+    
     public function confirmar(Carrito $carrito): Compra
     {
-        $carrito->load([
-            'items.producto',
-            'datosCheckout',
-        ]);
+        $this->validarParaConfirmar($carrito);
 
-        $this->validarCarrito($carrito);
-
-        $resumen = app(CarritoService::class)
-            ->resumen($carrito);
+        $resumen = $this->carritoService->resumen($carrito);
 
         return DB::transaction(function () use (
             $carrito,
@@ -35,12 +34,10 @@ class CheckoutService
                 'ciudad' => $datos->ciudad,
                 'codigo_postal' => $datos->codigo_postal,
                 'metodo_pago' => $datos->metodo_pago,
-
                 'subtotal' => $resumen['subtotal'],
                 'impuestos' => $resumen['impuestos'],
                 'costo_envio' => $resumen['costo_envio'],
                 'total' => $resumen['total'],
-
                 'estado' => 'confirmada',
             ]);
 
@@ -51,8 +48,7 @@ class CheckoutService
                     'cantidad' => $item->cantidad,
                     'precio_unitario' => $item->precio_unitario,
                     'subtotal' => round(
-                        $item->cantidad
-                        * (float) $item->precio_unitario,
+                        $item->cantidad * (float) $item->precio_unitario,
                         2
                     ),
                 ]);
@@ -71,7 +67,27 @@ class CheckoutService
         });
     }
 
-    private function validarCarrito(Carrito $carrito): void
+    public function validarParaRevision(Carrito $carrito): void
+    {
+        $carrito->load('items.producto');
+
+        $this->validarItems($carrito);
+        $this->validarStock($carrito);
+    }
+
+    public function validarParaConfirmar(Carrito $carrito): void
+    {
+        $carrito->load([
+            'items.producto',
+            'datosCheckout',
+        ]);
+
+        $this->validarItems($carrito);
+        $this->validarDatosCheckout($carrito);
+        $this->validarStock($carrito);
+    }
+
+    private function validarItems(Carrito $carrito): void
     {
         if ($carrito->items->isEmpty()) {
             throw ValidationException::withMessages([
@@ -80,7 +96,10 @@ class CheckoutService
                 ],
             ]);
         }
+    }
 
+    private function validarDatosCheckout(Carrito $carrito): void
+    {
         if (!$carrito->datosCheckout) {
             throw ValidationException::withMessages([
                 'checkout' => [
@@ -88,7 +107,10 @@ class CheckoutService
                 ],
             ]);
         }
+    }
 
+    private function validarStock(Carrito $carrito): void
+    {
         foreach ($carrito->items as $item) {
             if ($item->cantidad > $item->producto->stock) {
                 throw ValidationException::withMessages([
