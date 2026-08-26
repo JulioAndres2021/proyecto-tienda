@@ -12,13 +12,15 @@ use Illuminate\Support\Str;
 
 class CarritoService
 {
-    public function obtener(Request $request, bool $crear = false): ?Carrito
+    public function obtener(Request $request, bool $crear = false): ?Carrito 
     {
         $token = $request->header('X-Carrito-Token');
 
+        $usuarioId = auth('api')->id();
+
         if ($token) {
             $carrito = Carrito::where('token', $token)
-                ->where('usuario_id', auth('api')->id())
+                ->where('usuario_id', $usuarioId)
                 ->where('estado', 'activo')
                 ->first();
 
@@ -34,7 +36,7 @@ class CarritoService
         return Carrito::create([
             'token' => (string) Str::uuid(),
             'estado' => 'activo',
-            'usuario_id' => auth('api')->id(),
+            'usuario_id' => $usuarioId,
         ]);
     }
     

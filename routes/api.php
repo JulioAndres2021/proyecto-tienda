@@ -12,15 +12,21 @@ Route::prefix('v1')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Rutas públicas de autenticación
+    | Rutas públicas
     |--------------------------------------------------------------------------
     */
 
     Route::prefix('auth')->group(function () {
 
-        Route::post('register', [AuthController::class, 'register']);
+        Route::post(
+            'register',
+            [AuthController::class, 'register']
+        )->middleware('throttle:register');
 
-        Route::post('login', [AuthController::class, 'login']);
+        Route::post(
+            'login',
+            [AuthController::class, 'login']
+        )->middleware('throttle:login');
     });
 
     /*
@@ -36,48 +42,100 @@ Route::prefix('v1')->group(function () {
         */
         Route::prefix('auth')->group(function () {
 
-            Route::get('me', [AuthController::class, 'me']);
+            Route::get(
+                'me',
+                [AuthController::class, 'me']
+            );
 
-            Route::post('logout', [AuthController::class, 'logout']);
+            Route::post(
+                'logout',
+                [AuthController::class, 'logout']
+            );
 
-            Route::post('refresh', [AuthController::class, 'refresh']);
+            Route::post(
+                'refresh',
+                [AuthController::class, 'refresh']
+            );
         });
 
         /*
         | Categorías
         */
-        Route::apiResource('categorias', CategoriaController::class);
+        Route::apiResource(
+            'categorias',
+            CategoriaController::class
+        );
 
         /*
         | Productos
         */
-        Route::apiResource('productos', ProductoController::class);
+        Route::apiResource(
+            'productos',
+            ProductoController::class
+        );
 
         /*
-        | Carrito
+        |--------------------------------------------------------------------------
+        | Crear/agregar productos al carrito
+        |--------------------------------------------------------------------------
+        |
+        | Esta ruta queda protegida por JWT, pero NO por carrito.propietario,
+        | porque puede crear un carrito nuevo.
+        |
         */
-        Route::get('carrito', [CarritoController::class, 'mostrar']);
 
-        Route::post('carrito/productos', [CarritoController::class, 'agregar']);
-
-        Route::put('carrito/productos/{producto}', [CarritoController::class, 'actualizar']);
-
-        Route::delete('carrito/productos/{producto}', [CarritoController::class, 'eliminar']);
-
-        Route::delete('carrito', [CarritoController::class, 'vaciar']);
+        Route::post(
+            'carrito/productos',
+            [CarritoController::class, 'agregar']
+        );
 
         /*
-        | Resumen
+        |--------------------------------------------------------------------------
+        | Rutas que requieren un carrito existente y propio
+        |--------------------------------------------------------------------------
         */
-        Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
 
-        /*
-        | Checkout
-        */
-        Route::get('checkout/revisar', [CheckoutController::class, 'revisar']);
+        Route::middleware('carrito.propietario')->group(function () {
 
-        Route::post('checkout/datos', [CheckoutController::class, 'registrarDatos']);
+            Route::get(
+                'carrito',
+                [CarritoController::class, 'mostrar']
+            );
 
-        Route::post('checkout/confirmar', [CheckoutController::class, 'confirmar']);
+            Route::put(
+                'carrito/productos/{producto}',
+                [CarritoController::class, 'actualizar']
+            );
+
+            Route::delete(
+                'carrito/productos/{producto}',
+                [CarritoController::class, 'eliminar']
+            );
+
+            Route::delete(
+                'carrito',
+                [CarritoController::class, 'vaciar']
+            );
+
+            Route::get(
+                'carrito/resumen',
+                [ResumenCompraController::class, 'mostrar']
+            );
+
+            Route::get(
+                'checkout/revisar',
+                [CheckoutController::class, 'revisar']
+            );
+
+            Route::post(
+                'checkout/datos',
+                [CheckoutController::class, 'registrarDatos']
+            );
+
+            Route::post(
+                'checkout/confirmar',
+                [CheckoutController::class, 'confirmar']
+            );
+        });
     });
 });
