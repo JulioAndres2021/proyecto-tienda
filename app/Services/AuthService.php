@@ -60,14 +60,27 @@ class AuthService
         return Auth::guard('api')->user();
     }
 
-    public function logout(): void
+   public function logout(): void
     {
-        Auth::guard('api')->logout();
+        $guard = Auth::guard('api');
+
+        if (!$guard->check()) {
+            throw ValidationException::withMessages([
+                'auth' => [
+                    'No hay un usuario autenticado con este token.',
+                ],
+            ]);
+        }
+
+        $guard->logout(true);
     }
 
     public function refresh(): array
     {
-        $token = Auth::guard('api')->refresh();
+        $token = Auth::guard('api')->refresh(
+            true,
+            true
+        );
 
         return [
             'usuario' => Auth::guard('api')->user(),

@@ -14,25 +14,35 @@ class ProductoService
         return Producto::with('categoria')->get();
     }
 
-    public function crear(
-        CreateProductoData $data
-    ): Producto {
-        $producto = Producto::create(
-            $data->toArray()
-        );
+    public function crear(CreateProductoData $data): Producto 
+    {
+        $usuarioId = auth('api')->id();
 
-        return $producto->load('categoria');
+        $producto = Producto::create([
+            ...$data->toArray(),
+            'usuario_id' => $usuarioId,
+            'actualizado_por' => $usuarioId,
+        ]);
+
+        return $producto->load([
+            'categoria',
+            'usuario',
+            'actualizadoPor',
+        ]);
     }
 
-    public function actualizar(
-        Producto $producto,
-        UpdateProductoData $data
-    ): Producto {
-        $producto->update(
-            $data->toArray()
-        );
+    public function actualizar(Producto $producto, UpdateProductoData $data): Producto 
+    {
+        $producto->update([
+            ...$data->toArray(),
+            'actualizado_por' => auth('api')->id(),
+        ]);
 
-        return $producto->load('categoria');
+        return $producto->load([
+            'categoria',
+            'usuario',
+            'actualizadoPor',
+        ]);
     }
 
     public function eliminar(

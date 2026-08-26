@@ -13,6 +13,8 @@ class CategoriaResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'descripcion' => $this->descripcion,
+            'creado_por' => new UserResource($this->whenLoaded('usuario')),
+            'actualizado_por' => new UserResource($this->whenLoaded('actualizadoPor')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

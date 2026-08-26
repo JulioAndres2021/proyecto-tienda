@@ -16,18 +16,31 @@ class CategoriaService
 
     public function crear(CreateCategoriaData $data): Categoria 
     {
-        return Categoria::create(
-            $data->toArray()
-        );
+        $usuarioId = auth('api')->id();
+
+        $categoria = Categoria::create([
+            ...$data->toArray(),
+            'usuario_id' => $usuarioId,
+            'actualizado_por' => $usuarioId,
+        ]);
+
+        return $categoria->load([
+            'usuario',
+            'actualizadoPor',
+        ]);
     }
 
     public function actualizar(Categoria $categoria, UpdateCategoriaData $data): Categoria 
     {
-        $categoria->update(
-            $data->toArray()
-        );
+        $categoria->update([
+            ...$data->toArray(),
+            'actualizado_por' => auth('api')->id(),
+        ]);
 
-        return $categoria->refresh();
+        return $categoria->load([
+            'usuario',
+            'actualizadoPor',
+        ]);
     }
 
     public function eliminar(Categoria $categoria): void 

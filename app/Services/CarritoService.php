@@ -18,6 +18,7 @@ class CarritoService
 
         if ($token) {
             $carrito = Carrito::where('token', $token)
+                ->where('usuario_id', auth('api')->id())
                 ->where('estado', 'activo')
                 ->first();
 
@@ -33,6 +34,7 @@ class CarritoService
         return Carrito::create([
             'token' => (string) Str::uuid(),
             'estado' => 'activo',
+            'usuario_id' => auth('api')->id(),
         ]);
     }
     
