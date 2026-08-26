@@ -40,7 +40,11 @@ class ProductoController extends Controller
 
     public function show(Producto $producto): JsonResponse 
     {
-        $producto->load('categoria');
+        $producto->load([
+            'categoria',
+            'usuario',
+            'actualizadoPor',
+        ]);
 
         return ApiResponse::success(
             new ProductoResource($producto),

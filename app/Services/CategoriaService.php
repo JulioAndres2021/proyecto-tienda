@@ -11,7 +11,10 @@ class CategoriaService
 {
     public function listar(): Collection
     {
-        return Categoria::all();
+        return Categoria::with([
+            'usuario',
+            'actualizadoPor',
+        ])->get();
     }
 
     public function crear(CreateCategoriaData $data): Categoria 
@@ -42,6 +45,7 @@ class CategoriaService
             'actualizadoPor',
         ]);
     }
+
 
     public function eliminar(Categoria $categoria): void 
     {

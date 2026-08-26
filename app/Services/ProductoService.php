@@ -11,7 +11,11 @@ class ProductoService
 {
     public function listar(): Collection
     {
-        return Producto::with('categoria')->get();
+        return Producto::with([
+            'categoria',
+            'usuario',
+            'actualizadoPor',
+        ])->get();
     }
 
     public function crear(CreateProductoData $data): Producto 

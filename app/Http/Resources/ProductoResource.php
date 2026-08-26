@@ -31,6 +31,7 @@ class ProductoResource extends JsonResource
             
             'creado_por' => new UserResource($this->whenLoaded('usuario')),
             'actualizado_por' => new UserResource($this->whenLoaded('actualizadoPor')),
+            
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

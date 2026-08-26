@@ -53,6 +53,11 @@ class CategoriaController extends Controller
      */
     public function show(Categoria $categoria): JsonResponse 
     {
+        $categoria->load([
+            'usuario',
+            'actualizadoPor',
+        ]);
+
         return ApiResponse::success(
             new CategoriaResource($categoria),
             'Categoría obtenida correctamente.'
@@ -83,8 +88,8 @@ class CategoriaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-   public function destroy(Categoria $categoria): JsonResponse 
-   {
+    public function destroy(Categoria $categoria): JsonResponse 
+    {
         $this->categoriaService->eliminar($categoria);
 
         return ApiResponse::success(null, 'Categoría eliminada correctamente.');
