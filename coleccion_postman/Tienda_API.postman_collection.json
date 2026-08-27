@@ -88,34 +88,6 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response time is less than 1000ms\", function () {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
-                  "});",
-                  "",
-                  "pm.test(\"Response body has a data property\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property(\"data\");",
-                  "});",
-                  "",
-                  "pm.test(\"data is an array\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.data).to.be.an(\"array\");",
-                  "});",
-                  "",
-                  "pm.test(\"Each item in data has id, nombre, descripcion, created_at, updated_at\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    jsonData.data.forEach(function (item) {",
-                  "        pm.expect(item).to.have.property(\"id\");",
-                  "        pm.expect(item).to.have.property(\"nombre\");",
-                  "        pm.expect(item).to.have.property(\"descripcion\");",
-                  "        pm.expect(item).to.have.property(\"created_at\");",
-                  "        pm.expect(item).to.have.property(\"updated_at\");",
-                  "    });",
-                  "});",
                   ""
                 ],
                 "type": "text/javascript",
@@ -126,7 +98,14 @@
           ],
           "request": {
             "auth": {
-              "type": "noauth"
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
             },
             "method": "GET",
             "header": [
@@ -377,6 +356,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [
               {
@@ -386,18 +375,11 @@
               }
             ],
             "url": {
-              "raw": "http://127.0.0.1:8000/api/v1/categorias/111",
-              "protocol": "http",
+              "raw": "{{base_url}}/categorias/111",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{base_url}}"
               ],
-              "port": "8000",
               "path": [
-                "api",
-                "v1",
                 "categorias",
                 "111"
               ]
@@ -417,36 +399,14 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "const respuesta = pm.response.json();",
                   "",
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response body has a 'data' property\", function () {",
-                  "    const json = pm.response.json();",
-                  "    pm.expect(json).to.have.property(\"data\");",
-                  "});",
-                  "",
-                  "pm.test(\"'data' is an array\", function () {",
-                  "    const json = pm.response.json();",
-                  "    pm.expect(json.data).to.be.an(\"array\");",
-                  "});",
-                  "",
-                  "pm.test(\"Each item in 'data' has required properties\", function () {",
-                  "    const json = pm.response.json();",
-                  "    json.data.forEach(function (item) {",
-                  "        pm.expect(item).to.have.property(\"id\");",
-                  "        pm.expect(item).to.have.property(\"nombre\");",
-                  "        pm.expect(item).to.have.property(\"descripcion\");",
-                  "        pm.expect(item).to.have.property(\"created_at\");",
-                  "        pm.expect(item).to.have.property(\"updated_at\");",
-                  "    });",
-                  "});",
-                  "",
-                  "pm.test(\"Response time is under 2000ms\", function () {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
-                  "});",
-                  ""
+                  "if (respuesta.datos?.autorizacion?.token) {",
+                  "    pm.collectionVariables.set(",
+                  "        \"jwt_token\",",
+                  "        respuesta.datos.autorizacion.token",
+                  "    );",
+                  "}"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -456,7 +416,14 @@
           ],
           "request": {
             "auth": {
-              "type": "noauth"
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
             },
             "method": "GET",
             "header": [
@@ -514,6 +481,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -529,7 +506,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"nombre\": \"PRODUCTO NUEVO CREADO\", \r\n    \"descripcion\": \"Descripcion producto nuevo creado\"\r\n}",
+              "raw": "{\r\n  \"sku\": \"PROD-240\",\r\n  \"nombre\": \"Producto Nuevo con Usuario\",\r\n  \"descripcion\": \"Nueva descripción del producto nuevo\",\r\n  \"precio\": 25000,\r\n  \"stock\": 15,\r\n  \"categoria_id\": 9\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -586,6 +563,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [
               {
@@ -645,6 +632,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [
               {
@@ -660,7 +657,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"nombre\": \"PRODUCTO NUEVO CREADO EDITADO\", \"descripcion\": \"Descripcion producto nuevo creado EDITADO\"}",
+              "raw": "{\r\n  \"nombre\": \"Teclado actualizado\",\r\n  \"descripcion\": \"Nueva descripción\",\r\n  \"precio\": 16000,\r\n  \"stock\": 15,\r\n  \"categoria_id\": 9\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -710,6 +707,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [
               {
@@ -761,6 +768,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [
               {
@@ -790,7 +807,42 @@
       "item": [
         {
           "name": "Agregar al carrito",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "if (respuesta.datos?.token_carrito) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"X-Carrito-Token\",\r",
+                  "        respuesta.datos.token_carrito\r",
+                  "    );\r",
+                  "\r",
+                  "    console.log(\r",
+                  "        \"Token del carrito guardado:\",\r",
+                  "        respuesta.datos.token_carrito\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -802,11 +854,16 @@
                 "key": "Content-Type",
                 "value": "application/json",
                 "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"producto_id\": 1,\r\n    \"cantidad\": 2\r\n}",
+              "raw": "{\r\n    \"producto_id\": 8,\r\n    \"cantidad\": 10\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -919,6 +976,16 @@
         {
           "name": "Resumen de la compra",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [
               {
@@ -953,14 +1020,55 @@
         {
           "name": "Revisar compra",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Carrito-Token",
+                "value": "{{X-Carrito-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/checkout/revisar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout",
+                "revisar"
+              ]
+            }
           },
           "response": []
         },
         {
           "name": "Agrega cliente a la compra",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1004,6 +1112,16 @@
         {
           "name": "Confirmar compra",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1044,8 +1162,34 @@
         {
           "name": "Producto inexistente",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "productos",
+                "999"
+              ]
+            }
           },
           "response": []
         },
@@ -1065,6 +1209,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1085,7 +1239,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"producto_id\": 9,\r\n    \"cantidad\": 0\r\n}",
+              "raw": "{\r\n    \"producto_id\": 9,\r\n    \"cantidad\": -5\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1108,6 +1262,16 @@
         {
           "name": "Stock insuficiente",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1146,6 +1310,16 @@
         {
           "name": "Checkout sin datos",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1235,6 +1409,367 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Errores",
+          "item": [
+            {
+              "name": "Sin Token",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/productos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "productos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Token inventado",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwt_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/productos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "productos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Intento login 6 veces",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"usuario@gmail.com\",\r\n    \"password\": \"123456789\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Registrar Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "if (respuesta.datos?.autorizacion?.token) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"jwt_token\",\r",
+                  "        respuesta.datos.autorizacion.token\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Usuario Prueba\",\r\n    \"email\": \"usuario@gmail.com\",\r\n    \"password\": \"12345678\",\r\n    \"password_confirmation\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "if (respuesta.datos?.autorizacion?.token) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"jwt_token\",\r",
+                  "        respuesta.datos.autorizacion.token\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"usuario@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "if (respuesta.datos?.autorizacion?.token) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"jwt_token\",\r",
+                  "        respuesta.datos.autorizacion.token\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cerrar Sesion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "if (respuesta.datos?.autorizacion?.token) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"jwt_token\",\r",
+                  "        respuesta.datos.autorizacion.token\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refrescar Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "if (respuesta.datos?.autorizacion?.token) {\r",
+                  "    pm.collectionVariables.set(\r",
+                  "        \"jwt_token\",\r",
+                  "        respuesta.datos.autorizacion.token\r",
+                  "    );\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
@@ -1272,6 +1807,14 @@
     },
     {
       "key": "producto",
+      "value": ""
+    },
+    {
+      "key": "carrito_token",
+      "value": ""
+    },
+    {
+      "key": "jwt_token",
       "value": ""
     }
   ]

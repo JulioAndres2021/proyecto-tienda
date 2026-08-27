@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Compra;
+use App\Models\DatoCheckout;
+use App\Models\ItemCarrito;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Carrito extends Model
 {
-    protected $fillable = ['token', 'estado'];
+    protected $fillable = ['token', 'estado', 'usuario_id'];
 
     /*
         Carrito
@@ -18,6 +22,10 @@ class Carrito extends Model
     Compra
     │
     └── tiene muchos DetalleCompra
+
+    usuario
+    │
+    └── pertenece a un usuario
      */
     public function items()
     {
@@ -32,6 +40,11 @@ class Carrito extends Model
     public function compras()
     {
         return $this->hasMany(Compra::class);
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
 }

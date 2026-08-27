@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\ResumenCompraResource;
+use App\Http\Responses\ApiResponse;
+
 use App\Http\Controllers\Controller;
 use App\Services\CarritoService;
 use Illuminate\Http\JsonResponse;
@@ -16,26 +19,28 @@ class ResumenCompraController extends Controller
     | mostrar
     |-muestra el resumen del carrito.-
     */
-    public function mostrar(Request $request): JsonResponse
+   public function mostrar(Request $request): JsonResponse
     {
-        $carrito = $this->carritoService->obtener($request);//obtenemos el token
+        $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'No se encontró el carrito.',
-            ], 404);
+            return ApiResponse::error(
+                'No se encontró el carrito.',
+                404
+            );
         }
-
-        //accede al servicio y llama al metodo y envia el carrito para calcular
+        
+        /*
+        Llama al método resumen() de CarritoService y le entrega el carrito actual.
+        Ese método calcula:
+        Subtotal
+        Impuestos
+        Costo de envío
+        Total
+        El resultado se almacena en $resumen y luego se transforma con ResumenCompraResource para enviarlo en la respuesta de la API:
+        */
         $resumen = $this->carritoService->resumen($carrito);
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Resumen de compra calculado correctamente.',
-            'datos' => $resumen,
-        ]);
+        return ApiResponse::success(new ResumenCompraResource($resumen), 'Resumen de compra calculado correctamente.');
     }
 }

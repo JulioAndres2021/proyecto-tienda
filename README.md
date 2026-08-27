@@ -935,6 +935,136 @@ Descontar stock
 Carrito = comprado
 ```
 
+
+
+# Actualización: autenticación JWT y seguridad
+
+La API incorpora autenticación mediante **JSON Web Token (JWT)**. Las rutas privadas de la tienda se protegen con `auth:api`.
+
+## Autenticación
+
+Endpoints incorporados:
+
+- `POST /auth/register`: registrar usuario.
+- `POST /auth/login`: iniciar sesión y obtener JWT.
+- `GET /auth/me`: obtener usuario autenticado.
+- `POST /auth/logout`: cerrar sesión e invalidar el JWT.
+- `POST /auth/refresh`: renovar el JWT e invalidar el anterior.
+
+El JWT se envía mediante:
+
+```text
+Authorization: Bearer {{jwt_token}}
+```
+
+## Rate limiting
+
+Se incorporó protección contra intentos repetidos:
+
+- Login: máximo 5 intentos por minuto por email e IP.
+- Registro: máximo 3 intentos por minuto por IP.
+
+Al superar el límite:
+
+```json
+{
+  "exito": false,
+  "codigo": 429,
+  "mensaje": "Demasiados intentos. Intente nuevamente más tarde."
+}
+```
+
+## Usuario y carrito
+
+Cada carrito queda relacionado con el usuario autenticado mediante `usuario_id`.
+
+El token del carrito es independiente del JWT y se envía mediante:
+
+```text
+X-Carrito-Token: {{carrito_token}}
+```
+
+En operaciones sobre un carrito existente se utilizan ambos encabezados:
+
+```text
+Authorization: Bearer {{jwt_token}}
+X-Carrito-Token: {{carrito_token}}
+```
+
+El JWT identifica al usuario y `X-Carrito-Token` identifica el carrito.
+
+## Middleware propio
+
+Se incorporó el middleware:
+
+```text
+App\Http\Middleware\VerificarPropietarioCarrito
+```
+
+registrado con el alias:
+
+```text
+carrito.propietario
+```
+
+Este middleware comprueba que el carrito solicitado pertenezca al usuario autenticado. Si un usuario intenta utilizar el carrito de otro:
+
+```json
+{
+  "exito": false,
+  "codigo": 403,
+  "mensaje": "No tiene permisos para acceder a este carrito."
+}
+```
+
+La ruta `POST /carrito/productos` queda fuera de este middleware porque puede crear un carrito nuevo, aunque continúa protegida por JWT.
+
+## Trazabilidad de productos y categorías
+
+Productos y categorías registran:
+
+- `usuario_id`: usuario que creó el recurso.
+- `actualizado_por`: usuario que realizó la última modificación.
+
+Estos valores se obtienen del usuario autenticado mediante JWT y no son enviados por el cliente en el body.
+
+Los Resources pueden exponer esta información mediante `creado_por` y `actualizado_por`.
+
+## Nuevos códigos de respuesta
+
+| Código | Significado |
+|---|---|
+| 401 | No autenticado / JWT inválido o ausente |
+| 403 | Usuario autenticado sin permiso sobre el recurso |
+| 429 | Demasiados intentos |
+
+Los códigos `404`, `405` y `422` documentados anteriormente continúan utilizándose.
+
+## Variables de Postman
+
+Además de `base_url`, se utilizan:
+
+```text
+jwt_token
+carrito_token
+```
+
+`jwt_token` se utiliza en Authorization y `carrito_token` como valor de `X-Carrito-Token`.
+
+## Seguridad implementada en esta etapa
+
+- Autenticación JWT.
+- Rutas privadas mediante `auth:api`.
+- Logout con invalidación del JWT.
+- Refresh del JWT.
+- Rate limiting en login y registro.
+- Error 429 con estructura JSON estándar.
+- Middleware propio de autorización del carrito.
+- Asociación entre usuario y carrito.
+- Trazabilidad de usuarios en productos y categorías.
+- Respuestas 401 y 403 estandarizadas.
+
+
 ## 👥 Autor
 * **Julio Andres** - *Desarrollo Completo* - [JulioAndres2021](https://github.com/JulioAndres2021/proyecto-tienda)
 

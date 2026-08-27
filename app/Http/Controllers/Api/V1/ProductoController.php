@@ -2,83 +2,93 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\DTOs\Producto\CreateProductoData;
+use App\DTOs\Producto\UpdateProductoData;
+use App\Http\Responses\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductoRequest;
 use App\Http\Requests\UpdateProductoRequest;
 use App\Http\Resources\ProductoResource;
 use App\Models\Producto;
 use Illuminate\Http\JsonResponse;
-
+use App\Services\ProductoService;
 
 
 class ProductoController extends Controller
 {
+
+    public function __construct(private ProductoService $productoService) {
+    }
+
     /**
      * Display a listing of the resource.
      */
+
     public function index(): JsonResponse
     {
-       $productos = Producto::with('categoria')->get();
+        $productos = $this->productoService->listar();
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Productos obtenidos correctamente.',
-            'datos' => $productos,
-        ], 200);
+        return ApiResponse::success(ProductoResource::collection($productos), 'Productos obtenidos correctamente.');
     }
 
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(StoreProductoRequest $request): JsonResponse
     {
-        $validatedata = $request->validated(); //Validamos los datos traidos
+        $data = CreateProductoData::fromArray($request->validated());
 
-        $producto = Producto::create($validatedata); //Los agregamos a la base
+        $producto = $this->productoService->crear($data);
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 201,
-            'mensaje' => 'Producto creado correctamente.',
-            'datos' => $producto,
-        ], 201);
+        return ApiResponse::success(new ProductoResource($producto), 'Producto creado correctamente.',
+            201
+        );
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Producto $producto): ProductoResource
+
+    public function show(Producto $producto): JsonResponse
     {
-        return new ProductoResource($producto);
+        $producto->load([
+            'categoria',
+            'usuario',
+            'actualizadoPor',
+        ]);
+
+        return ApiResponse::success(
+            new ProductoResource($producto),
+            'Producto obtenido correctamente.'
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
+
     public function update(UpdateProductoRequest $request, Producto $producto): JsonResponse
     {
-        $validatedata = $request->validated(); //Validamos datos traidos
+        $data = UpdateProductoData::fromArray($request->validated());
 
-        $producto->update($validatedata); //Actualizamos
+        $producto = $this->productoService->actualizar(
+                $producto,
+                $data
+            );
 
-        return ProductoResource::make($producto)->response()->setStatusCode(200);
-
+        return ApiResponse::success(new ProductoResource($producto), 'Producto actualizado correctamente.'
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
+    
     public function destroy(Producto $producto): JsonResponse
     {
-        $producto->delete(); //Borramos
+        $this->productoService->eliminar($producto);
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Producto eliminado correctamente.',
-        ], 200);
-
-
+        return ApiResponse::success(null, 'Producto eliminado correctamente.');
     }
 }

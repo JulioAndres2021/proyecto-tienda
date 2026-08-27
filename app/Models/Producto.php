@@ -12,7 +12,10 @@ class Producto extends Model
     //
     use HasFactory;
 
-    protected $fillable = ['nombre', 'sku' ,'descripcion', 'precio', 'stock', 'categoria_id'];
+    protected $fillable = [
+        'nombre', 'sku' ,'descripcion', 'precio', 'stock', 'categoria_id','usuario_id',
+        'actualizado_por',
+    ];
 
     /*
         producto
@@ -20,6 +23,8 @@ class Producto extends Model
     ├── pertenece a categoria
     │
     ├── tiene varios itemscarrito
+    │
+    ├── pertenece a un usuario
     */
     public function categoria()
     {
@@ -29,6 +34,16 @@ class Producto extends Model
     public function itemsCarrito()
     {
         return $this->hasMany(ItemCarrito::class);
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    public function actualizadoPor()
+    {
+        return $this->belongsTo(User::class, 'actualizado_por');
     }
 
 }

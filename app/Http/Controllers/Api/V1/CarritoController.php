@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\DTOs\Carrito\AgregarProductoCarritoData;
+use App\DTOs\Carrito\ActualizarCantidadCarritoData;
+use App\Http\Resources\CarritoResource;
+use App\Http\Resources\ItemCarritoResource;
+use App\Http\Responses\ApiResponse;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AgregarProductoCarritoRequest;
 use App\Http\Requests\ActualizarCantidadCarritoRequest;
@@ -13,7 +19,7 @@ use Illuminate\Http\Request;
 
 class CarritoController extends Controller
 {
-    //Usamos el constructor para obtener el token
+
     public function __construct(private CarritoService $carritoService) {
     }
 
@@ -23,92 +29,50 @@ class CarritoController extends Controller
     */
     public function mostrar(Request $request): JsonResponse
     {
-        $carrito = $this->carritoService->obtener($request);//obtenemos el token
+        $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'No se encontró el carrito.',
-            ], 404);
+            return ApiResponse::error(
+                'No se encontró el carrito.',
+                404
+            );
         }
 
         $carrito->load('items.producto');
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Carrito obtenido correctamente.',
-            'token_carrito' => $carrito->token,
-            'datos' => $carrito,
-        ]);
+        return ApiResponse::success(new CarritoResource($carrito), 'Carrito obtenido correctamente.');
     }
-
+    
     /*
     | agregar
     |-agrega un producto al carrito-
     */
     public function agregar(AgregarProductoCarritoRequest $request): JsonResponse
     {
-        $datos = $request->validated();//Validamos
+        $data = AgregarProductoCarritoData::fromArray(
+            $request->validated()
+        );
 
-        $producto = Producto::findOrFail($datos['producto_id']);//Buscamos el producto
+        $producto = Producto::findOrFail(
+            $data->productoId
+        );
 
-        /*Si viene un token válido → usar ese carrito
-        Si no viene token → crear un carrito nuevo*/
-        $carrito = $this->carritoService->obtener($request,true);
+        $carrito = $this->carritoService->obtener($request, true);
 
-        //verificamos si el producto ya está en el carrito
-        $item = ItemCarrito::where('carrito_id', $carrito->id)->where('producto_id', $producto->id)->first();
+        $item = $this->carritoService->agregarProducto(
+            $carrito,
+            $producto,
+            $data->cantidad
+        );
 
-        //si el producto ya estaba en el carrito, se acumula la cantidad; si no estaba, se parte desde cero.
-        $cantidadActual = $item?->cantidad ?? 0;
-        $cantidadFinal = $cantidadActual + $datos['cantidad'];
-
-        //validamos stock
-        if ($cantidadFinal > $producto->stock) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 422,
-                'mensaje' => 'Stock insuficiente.',
-                'errores' => [
-                    'stock' => [
-                        "Stock disponible: {$producto->stock}."
-                    ]
-                ],
-            ], 422);
-        }
-
-        /*
-        Este bloque decide si debe actualizar un item existente o crear uno nuevo
-        Si $item existe, significa que el producto ya está en el carrito. Entonces actualiza su cantidad con $cantidadFinal.
-        Si $item no existe, crea un nuevo registro en ItemCarrito con:
-        El carrito correspondiente.
-        El producto seleccionado.
-        La cantidad solicitada.
-        El precio actual del producto.
-        Esto evita crear registros duplicados para el mismo producto dentro del carrito.
-        */
-        if ($item) {
-            $item->update(['cantidad' => $cantidadFinal,]);
-        } else {
-            $item = ItemCarrito::create([
-                'carrito_id' => $carrito->id,
-                'producto_id' => $producto->id,
-                'cantidad' => $datos['cantidad'],
-                'precio_unitario' => $producto->precio,
-            ]);
-        }
-
-        $item->load('producto');//carga la relación producto del modelo ItemCarrito.
-
-        return response()->json([
-            'exito' => true,
-            'codigo' => 201,
-            'mensaje' => 'Producto agregado al carrito.',
-            'token_carrito' => $carrito->token,
-            'datos' => $item,
-        ], 201);
+        return ApiResponse::success(
+            [
+                'token_carrito' => $carrito->token,
+                'item' => new ItemCarritoResource($item),
+            ],
+            'Producto agregado al carrito.',
+            201
+        );
     }
 
     /*
@@ -117,94 +81,55 @@ class CarritoController extends Controller
     */
     public function actualizar(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse
     {
-        $carrito = $this->carritoService->obtener($request);//obtenemos el token
+        $data = ActualizarCantidadCarritoData::fromArray(
+            $request->validated()
+        );
 
+        $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'No se encontró el carrito.',
-            ], 404);
+            return ApiResponse::error(
+                'No se encontró el carrito.',
+                404
+            );
         }
 
-        //comprueba si el producto ya esta dentro de ese carrito
-        $item = ItemCarrito::where('carrito_id', $carrito->id)
-            ->where('producto_id', $producto->id)
-            ->first();
+        $item = $this->carritoService->actualizarCantidad(
+            $carrito,
+            $producto,
+            $data->cantidad
+        );
 
-        if (!$item) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'El producto no se encuentra en el carrito.',
-            ], 404);
-        }
-
-        $cantidad = $request->validated()['cantidad'];//valida si es correcto y la cantidad no supere el stock
-
-        if ($cantidad > $producto->stock) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 422,
-                'mensaje' => 'Stock insuficiente.',
-                'errores' => [
-                    'stock' => [
-                        "Stock disponible: {$producto->stock}."
-                    ]
-                ],
-            ], 422);
-        }
-
-        $item->update(['cantidad' => $cantidad,]);//actualiza la cantidad del producto
-
-        $item->load('producto');//carga la relacion del producto
-
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Cantidad actualizada correctamente.',
-            'datos' => $item,
-        ]);
+        return ApiResponse::success(
+            new ItemCarritoResource($item),
+            'Cantidad actualizada correctamente.'
+        );
     }
-    
+
     /*
     | eliminar
     |-elimina un producto en el carrito-
     */
     public function eliminar(Request $request, Producto $producto): JsonResponse
     {
-        $carrito = $this->carritoService->obtener($request);//obtenemos el token
+        $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'No se encontró el carrito.',
-            ], 404);
+            return ApiResponse::error(
+                'No se encontró el carrito.',
+                404
+            );
         }
 
-        //comprueba si el producto ya esta dentro de ese carrito.
-        $item = ItemCarrito::where('carrito_id', $carrito->id)
-            ->where('producto_id', $producto->id)
-            ->first();
+        $this->carritoService->eliminarProducto(
+            $carrito,
+            $producto
+        );
 
-        if (!$item) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'El producto no se encuentra en el carrito.',
-            ], 404);
-        }
-
-        $item->delete();//items del carrito eliminado
-
-        //retornamos
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Producto eliminado del carrito.',
-        ]);
+        return ApiResponse::success(
+            null,
+            'Producto eliminado del carrito.'
+        );
     }
 
     /*
@@ -213,22 +138,20 @@ class CarritoController extends Controller
     */
     public function vaciar(Request $request): JsonResponse
     {
-        $carrito = $this->carritoService->obtener($request);//obtenemos el token
+        $carrito = $this->carritoService->obtener($request);
 
         if (!$carrito) {
-            return response()->json([
-                'exito' => false,
-                'codigo' => 404,
-                'mensaje' => 'No se encontró el carrito.',
-            ], 404);
+            return ApiResponse::error(
+                'No se encontró el carrito.',
+                404
+            );
         }
 
-        $carrito->items()->delete();//borra el carrito
+        $this->carritoService->vaciar($carrito);
 
-        return response()->json([
-            'exito' => true,
-            'codigo' => 200,
-            'mensaje' => 'Carrito vaciado correctamente.',
-        ]);
+        return ApiResponse::success(
+            null,
+            'Carrito vaciado correctamente.'
+        );
     }
 }
