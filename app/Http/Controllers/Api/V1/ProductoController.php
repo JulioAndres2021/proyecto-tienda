@@ -20,6 +20,10 @@ class ProductoController extends Controller
     public function __construct(private ProductoService $productoService) {
     }
 
+    /**
+     * Display a listing of the resource.
+     */
+
     public function index(): JsonResponse
     {
         $productos = $this->productoService->listar();
@@ -27,7 +31,11 @@ class ProductoController extends Controller
         return ApiResponse::success(ProductoResource::collection($productos), 'Productos obtenidos correctamente.');
     }
 
-    public function store(StoreProductoRequest $request): JsonResponse 
+    /**
+     * Store a newly created resource in storage.
+     */
+
+    public function store(StoreProductoRequest $request): JsonResponse
     {
         $data = CreateProductoData::fromArray($request->validated());
 
@@ -38,7 +46,11 @@ class ProductoController extends Controller
         );
     }
 
-    public function show(Producto $producto): JsonResponse 
+    /**
+     * Display the specified resource.
+     */
+
+    public function show(Producto $producto): JsonResponse
     {
         $producto->load([
             'categoria',
@@ -52,7 +64,11 @@ class ProductoController extends Controller
         );
     }
 
-    public function update(UpdateProductoRequest $request, Producto $producto): JsonResponse 
+    /**
+     * Update the specified resource in storage.
+     */
+
+    public function update(UpdateProductoRequest $request, Producto $producto): JsonResponse
     {
         $data = UpdateProductoData::fromArray($request->validated());
 
@@ -65,7 +81,11 @@ class ProductoController extends Controller
         );
     }
 
-    public function destroy(Producto $producto): JsonResponse 
+    /**
+     * Remove the specified resource from storage.
+     */
+    
+    public function destroy(Producto $producto): JsonResponse
     {
         $this->productoService->eliminar($producto);
 

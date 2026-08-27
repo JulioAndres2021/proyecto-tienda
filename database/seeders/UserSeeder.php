@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => bcrypt('12345678'), // Cambia 'password' por la contraseña que desees
+            'is_admin' => true,
         ]);
 
         //Creamos el cliente con los datos proporcionados

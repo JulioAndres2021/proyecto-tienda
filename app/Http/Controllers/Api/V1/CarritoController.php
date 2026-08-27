@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 
 class CarritoController extends Controller
 {
-    //Usamos el constructor para obtener el token
+
     public function __construct(private CarritoService $carritoService) {
     }
 
@@ -42,11 +42,12 @@ class CarritoController extends Controller
 
         return ApiResponse::success(new CarritoResource($carrito), 'Carrito obtenido correctamente.');
     }
+    
     /*
     | agregar
     |-agrega un producto al carrito-
     */
-    public function agregar(AgregarProductoCarritoRequest $request): JsonResponse 
+    public function agregar(AgregarProductoCarritoRequest $request): JsonResponse
     {
         $data = AgregarProductoCarritoData::fromArray(
             $request->validated()
@@ -78,7 +79,7 @@ class CarritoController extends Controller
     | actualizar
     |-actualiza un producto en el carrito-
     */
-    public function actualizar(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse 
+    public function actualizar(ActualizarCantidadCarritoRequest $request, Producto $producto): JsonResponse
     {
         $data = ActualizarCantidadCarritoData::fromArray(
             $request->validated()
@@ -104,12 +105,12 @@ class CarritoController extends Controller
             'Cantidad actualizada correctamente.'
         );
     }
-    
+
     /*
     | eliminar
     |-elimina un producto en el carrito-
     */
-    public function eliminar(Request $request, Producto $producto): JsonResponse 
+    public function eliminar(Request $request, Producto $producto): JsonResponse
     {
         $carrito = $this->carritoService->obtener($request);
 

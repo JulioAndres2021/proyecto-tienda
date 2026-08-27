@@ -18,15 +18,9 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('auth')->group(function () {
 
-        Route::post(
-            'register',
-            [AuthController::class, 'register']
-        )->middleware('throttle:register');
+        Route::post('register', [AuthController::class, 'register'])->middleware('throttle:register');
 
-        Route::post(
-            'login',
-            [AuthController::class, 'login']
-        )->middleware('throttle:login');
+        Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
     });
 
     /*
@@ -42,37 +36,22 @@ Route::prefix('v1')->group(function () {
         */
         Route::prefix('auth')->group(function () {
 
-            Route::get(
-                'me',
-                [AuthController::class, 'me']
-            );
+            Route::get('me', [AuthController::class, 'me']);
 
-            Route::post(
-                'logout',
-                [AuthController::class, 'logout']
-            );
+            Route::post('logout', [AuthController::class, 'logout']);
 
-            Route::post(
-                'refresh',
-                [AuthController::class, 'refresh']
-            );
+            Route::post('refresh', [AuthController::class, 'refresh']);
         });
 
         /*
         | Categorías
         */
-        Route::apiResource(
-            'categorias',
-            CategoriaController::class
-        );
+        Route::apiResource('categorias', CategoriaController::class);
 
         /*
         | Productos
         */
-        Route::apiResource(
-            'productos',
-            ProductoController::class
-        );
+        Route::apiResource('productos', ProductoController::class);
 
         /*
         |--------------------------------------------------------------------------
@@ -84,10 +63,7 @@ Route::prefix('v1')->group(function () {
         |
         */
 
-        Route::post(
-            'carrito/productos',
-            [CarritoController::class, 'agregar']
-        );
+        Route::post('carrito/productos', [CarritoController::class, 'agregar']);
 
         /*
         |--------------------------------------------------------------------------
@@ -97,45 +73,21 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('carrito.propietario')->group(function () {
 
-            Route::get(
-                'carrito',
-                [CarritoController::class, 'mostrar']
-            );
+            Route::get('carrito', [CarritoController::class, 'mostrar']);
 
-            Route::put(
-                'carrito/productos/{producto}',
-                [CarritoController::class, 'actualizar']
-            );
+            Route::put('carrito/productos/{producto}', [CarritoController::class, 'actualizar']);
 
-            Route::delete(
-                'carrito/productos/{producto}',
-                [CarritoController::class, 'eliminar']
-            );
+            Route::delete('carrito/productos/{producto}', [CarritoController::class, 'eliminar']);
 
-            Route::delete(
-                'carrito',
-                [CarritoController::class, 'vaciar']
-            );
+            Route::delete('carrito', [CarritoController::class, 'vaciar']);
 
-            Route::get(
-                'carrito/resumen',
-                [ResumenCompraController::class, 'mostrar']
-            );
+            Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
 
-            Route::get(
-                'checkout/revisar',
-                [CheckoutController::class, 'revisar']
-            );
+            Route::get('heckout/revisar', [CheckoutController::class, 'revisar']);
 
-            Route::post(
-                'checkout/datos',
-                [CheckoutController::class, 'registrarDatos']
-            );
+            Route::post('checkout/datos', [CheckoutController::class, 'registrarDatos']);
 
-            Route::post(
-                'checkout/confirmar',
-                [CheckoutController::class, 'confirmar']
-            );
+            Route::post('checkout/confirmar', [CheckoutController::class, 'confirmar']);
         });
     });
 });
