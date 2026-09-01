@@ -17,6 +17,8 @@ use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use app\Http\Middleware\VerificarPropietarioCarrito;
 
+
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -27,7 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
         'carrito.propietario' => \App\Http\Middleware\VerificarPropietarioCarrito::class,
-    ]);
+        ]);
+       $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('api/*')) {
+                return null;
+            }
+
+            return '/login';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
@@ -35,6 +44,20 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) =>
                 $request->is('api/*') || $request->expectsJson()
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Para una ruta protegida no reciba token
+        |--------------------------------------------------------------------------
+        */
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    'No autenticado.',
+                    401
+                );
+            }
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -110,23 +133,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         /*
         |--------------------------------------------------------------------------
-        | Para una ruta protegida no reciba token
-        |--------------------------------------------------------------------------
-        */
-        $exceptions->render(function (AuthenticationException $e, Request $request) {
-            if ($request->is('api/*')) {
-                return ApiResponse::error(
-                    'No autenticado.',
-                    401
-                );
-            }
-        });
-
-
-
-
-        /*
-        |--------------------------------------------------------------------------
         | Modelo no encontrado - 404
         |--------------------------------------------------------------------------
         */
@@ -166,5 +172,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
             }
         });
+
+
+
 
 })->create();

@@ -26,6 +26,31 @@ Base URL:
 http://127.0.0.1:8000/api/v1
 ```
 
+## Configuración de JWT
+
+Luego de instalar las dependencias y configurar el archivo `.env`, se debe generar la clave secreta utilizada para firmar los tokens JWT:
+
+```bash
+php artisan jwt:secret
+
+env
+JWT_SECRET=clave_generada_automaticamente
+
+```
+Tiempo de expiración
+
+La duración de los tokens puede configurarse desde el archivo .env:
+
+JWT_TTL=60
+JWT_REFRESH_TTL=20160
+JWT_TTL: duración del token de acceso, expresada en minutos.
+JWT_REFRESH_TTL: período durante el cual el token puede renovarse, también expresado en minutos.
+
+Con estos valores:
+
+El token de acceso dura 60 minutos.
+El período de renovación es de 20160 minutos (14 días).
+```
 ## Formato general
 
 Respuesta exitosa:
