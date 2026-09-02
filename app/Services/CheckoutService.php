@@ -6,14 +6,15 @@ use App\Models\Carrito;
 use App\Models\Compra;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Contracts\PagoServiceInterface;
 
 class CheckoutService
 {
-    public function __construct(
-        private CarritoService $carritoService
-    ) {
-    }
-    
+    public function __construct(private CarritoService $carritoService,private PagoServiceInterface $pagoService)
+    {}
+
+
+
     public function confirmar(Carrito $carrito): Compra
     {
         $this->validarParaConfirmar($carrito);
@@ -25,6 +26,18 @@ class CheckoutService
             $resumen
         ) {
             $datos = $carrito->datosCheckout;
+
+            $aprobado = $this->pagoService->aprobar((float) $resumen['total'],
+                $carrito->datosCheckout->metodo_pago
+            );
+
+            if (!$aprobado) {
+                throw ValidationException::withMessages([
+                    'pago' => [
+                        'El pago fue rechazado.',
+                    ],
+                ]);
+            }
 
             $compra = Compra::create([
                 'carrito_id' => $carrito->id,
