@@ -12,8 +12,9 @@ Postman.
 
 ``` bash
 composer install
-cp .env.example .env
+copy .env.example .env
 php artisan key:generate
+php artisan jwt:secret
 php artisan migrate --seed
 php artisan serve
 ```
@@ -1089,6 +1090,429 @@ carrito_token
 - Trazabilidad de usuarios en productos y categorías.
 - Respuestas 401 y 403 estandarizadas.
 
+
+# Testing y aseguramiento de calidad
+
+El proyecto incluye una suite de pruebas automatizadas desarrollada con **PHPUnit**, destinada a verificar la lógica de negocio, los principales endpoints de la API REST, la autenticación JWT, los middlewares de seguridad y el flujo completo de compra.
+
+Las pruebas se ejecutan en un entorno independiente para evitar modificaciones sobre la base de datos utilizada durante el desarrollo.
+
+## Entorno de testing
+
+Para las pruebas se utiliza el entorno:
+
+```text
+APP_ENV=testing
+```
+
+y una base de datos MySQL independiente:
+
+```text
+proyecto_tienda_testing
+```
+
+La configuración local se realiza mediante:
+
+```text
+.env.testing
+```
+
+Este archivo no se incluye en el repositorio porque puede contener credenciales y valores sensibles.
+
+Ejemplo de configuración:
+
+```env
+APP_ENV=testing
+APP_DEBUG=true
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=proyecto_tienda_testing
+DB_USERNAME=root
+DB_PASSWORD=
+
+JWT_SECRET=clave_jwt
+JWT_TTL=60
+JWT_REFRESH_TTL=20160
+```
+
+Antes de ejecutar la suite se recomienda verificar que Laravel esté utilizando la base de datos de testing:
+
+```bash
+php artisan tinker --env=testing
+```
+
+Dentro de Tinker:
+
+```php
+config('database.connections.mysql.database');
+```
+
+Debe devolver:
+
+```text
+proyecto_tienda_testing
+```
+
+---
+
+## Ejecutar los tests
+
+Para ejecutar la suite completa:
+
+```bash
+php artisan test
+```
+
+También puede utilizarse PHPUnit directamente:
+
+```bash
+vendor/bin/phpunit
+```
+
+En Windows:
+
+```bash
+vendor\bin\phpunit
+```
+
+Para ejecutar únicamente los Unit Tests:
+
+```bash
+php artisan test --testsuite=Unit
+```
+
+Para ejecutar únicamente los Feature Tests:
+
+```bash
+php artisan test --testsuite=Feature
+```
+
+---
+
+## Organización de los tests
+
+La suite se encuentra organizada principalmente de la siguiente manera:
+
+```text
+tests/
+├── Unit/
+│   └── CalculadoraCompraServiceTest.php
+│
+└── Feature/
+    ├── AuthTest.php
+    ├── CarritoServiceTest.php
+    ├── CarritoTest.php
+    ├── CheckoutTest.php
+    ├── PagoMockTest.php
+    ├── ProductoTest.php
+    └── SeguridadTest.php
+```
+
+---
+
+## Unit Tests
+
+Los Unit Tests verifican lógica de negocio aislada, sin necesidad de realizar peticiones HTTP.
+
+### CalculadoraCompraServiceTest
+
+Se prueba el servicio encargado de calcular los importes de una compra.
+
+Entre los casos cubiertos se encuentran:
+
+- cálculo de impuestos;
+- cálculo del costo de envío;
+- cálculo del total;
+- envío gratuito al alcanzar el monto mínimo;
+- comportamiento con subtotal igual a cero.
+
+La lógica utilizada contempla:
+
+```text
+Impuestos: 21 %
+Costo de envío: $5.000
+Envío gratuito: desde $50.000
+```
+
+De esta manera puede verificarse la lógica matemática independientemente del controlador, la base de datos y los endpoints HTTP.
+
+---
+
+## Pruebas de lógica del carrito
+
+`CarritoServiceTest` verifica reglas de negocio relacionadas con el carrito y el stock.
+
+Se prueban los siguientes casos:
+
+- no permitir agregar una cantidad superior al stock disponible;
+- permitir agregar un producto cuando existe stock suficiente;
+- sumar cantidades cuando el producto ya existe en el carrito;
+- persistencia correcta de los items.
+
+Para mantener cada prueba aislada se utiliza:
+
+```php
+use RefreshDatabase;
+```
+
+---
+
+## Feature Tests
+
+Los Feature Tests verifican el comportamiento de la aplicación de punta a punta utilizando peticiones HTTP reales contra la aplicación Laravel en el entorno de testing.
+
+### Autenticación JWT
+
+`AuthTest` verifica:
+
+- login exitoso;
+- login con credenciales incorrectas;
+- generación del token JWT;
+- acceso denegado sin token;
+- acceso permitido utilizando un JWT válido.
+
+También se verifica que una ruta protegida sin JWT responda:
+
+```json
+{
+    "exito": false,
+    "codigo": 401,
+    "mensaje": "No autenticado."
+}
+```
+
+La respuesta se mantiene en formato JSON incluso cuando el cliente no envía:
+
+```text
+Accept: application/json
+```
+
+---
+
+## Tests de productos
+
+`ProductoTest` verifica:
+
+- creación de productos mediante la API;
+- creación realizada por un usuario autenticado;
+- asociación del usuario creador;
+- persistencia del producto en la base de datos;
+- rechazo de la operación cuando no se envía un JWT.
+
+---
+
+## Tests del carrito
+
+`CarritoTest` verifica:
+
+- agregar productos al carrito;
+- generación y recuperación del token del carrito;
+- persistencia de los items;
+- eliminación de productos del carrito.
+
+Las operaciones sobre un carrito existente utilizan:
+
+```text
+Authorization: Bearer <jwt_token>
+X-Carrito-Token: <carrito_token>
+```
+
+---
+
+## Tests de Checkout
+
+`CheckoutTest` verifica el flujo completo de compra:
+
+```text
+Login
+  ↓
+Agregar producto
+  ↓
+Obtener carrito
+  ↓
+Revisar checkout
+  ↓
+Registrar datos de envío y pago
+  ↓
+Confirmar compra
+  ↓
+Registrar compra
+  ↓
+Registrar detalles
+  ↓
+Descontar stock
+```
+
+También se verifica que no sea posible confirmar una compra si previamente no se registraron los datos necesarios del checkout.
+
+Una vez confirmada correctamente una compra, el test comprueba tanto los registros generados como la disminución del stock del producto.
+
+---
+
+## Tests de seguridad
+
+`SeguridadTest` verifica el funcionamiento de los mecanismos incorporados durante la etapa de seguridad del proyecto.
+
+Entre los escenarios probados se encuentran:
+
+```text
+Ruta protegida sin JWT
+→ 401 Unauthorized
+
+Ruta protegida con JWT válido
+→ acceso permitido
+
+JWT válido + carrito perteneciente a otro usuario
+→ 403 Forbidden
+```
+
+También se verifica automáticamente el middleware personalizado:
+
+```text
+VerificarPropietarioCarrito
+```
+
+Esto impide que un usuario autenticado pueda acceder al carrito perteneciente a otro usuario.
+
+---
+
+## Factories
+
+Para generar información consistente durante los tests se utilizan Factories de Laravel.
+
+El proyecto dispone de factories para:
+
+```text
+User
+Categoria
+Producto
+```
+
+Esto permite crear datos dinámicamente sin depender de registros previamente existentes ni de identificadores fijos.
+
+Ejemplo:
+
+```php
+$usuario = User::factory()->create();
+
+$categoria = Categoria::factory()->create([
+    'usuario_id' => $usuario->id,
+]);
+
+$producto = Producto::factory()->create([
+    'categoria_id' => $categoria->id,
+    'usuario_id' => $usuario->id,
+    'stock' => 10,
+]);
+```
+
+---
+
+## Seeder de testing
+
+También se incluye:
+
+```text
+database/seeders/TestingSeeder.php
+```
+
+Este seeder genera datos relacionados de prueba:
+
+```text
+Usuarios
+   ↓
+Categorías
+   ↓
+Productos
+```
+
+Puede ejecutarse mediante:
+
+```bash
+php artisan db:seed --class=TestingSeeder --env=testing
+```
+
+---
+
+## Mocking
+
+Para demostrar el aislamiento de dependencias externas se implementó un servicio de pago mediante:
+
+```text
+PagoServiceInterface
+        ↓
+PagoService
+```
+
+`CheckoutService` depende de la interfaz y no directamente de una implementación concreta.
+
+Durante los tests, la implementación real puede reemplazarse por un mock.
+
+Ejemplo conceptual:
+
+```text
+CheckoutService
+      ↓
+PagoServiceInterface
+      ↓
+     Mock
+      ↓
+Pago rechazado
+```
+
+`PagoMockTest` simula un pago rechazado y verifica que el checkout no confirme la compra.
+
+Esto permite probar la lógica sin depender de un proveedor de pagos externo real.
+
+---
+
+## Resultado de PHPUnit
+
+La ejecución completa de PHPUnit se encuentra documentada en:
+
+```text
+docs/phpunit-result.txt
+```
+
+El reporte puede regenerarse en Windows mediante:
+
+```bash
+vendor\bin\phpunit --colors=never > docs\phpunit-result.txt
+```
+
+Al momento del cierre de la etapa de testing, la suite obtiene:
+
+```text
+Tests: 18
+Assertions: 70
+Resultado: OK
+```
+
+Todos los tests incluidos en la suite finalizan correctamente.
+
+---
+
+## Cobertura funcional de la suite
+
+La suite automatizada cubre las principales funcionalidades solicitadas durante el desarrollo:
+
+- lógica de cálculo de compras;
+- validación de stock;
+- carrito de compras;
+- productos;
+- checkout;
+- autenticación JWT;
+- rutas protegidas;
+- autorización sobre carritos;
+- respuestas HTTP 401 y 403;
+- persistencia en base de datos;
+- Factories;
+- Seeders;
+- mocking de dependencias externas.
+
+Esto permite verificar automáticamente que las principales funcionalidades desarrolladas durante las distintas etapas del proyecto continúan funcionando después de realizar modificaciones en el código.
 
 ## 👥 Autor
 * **Julio Andres** - *Desarrollo Completo* - [JulioAndres2021](https://github.com/JulioAndres2021/proyecto-tienda)
