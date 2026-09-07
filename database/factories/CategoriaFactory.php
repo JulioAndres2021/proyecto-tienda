@@ -2,24 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\Categoria;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-/**
- * @extends Factory<Categoria>
- */
 class CategoriaFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    use HasFactory;
     public function definition(): array
     {
         return [
-            'nombre' => $this->faker->unique()->word(),
-            'descripcion' => $this->faker->sentence(),
+            'nombre' => fake()->unique()->words(2, true),
+            'descripcion' => fake()->sentence(),
+            'usuario_id' => User::factory(),
+            'actualizado_por' => null,
         ];
     }
 }

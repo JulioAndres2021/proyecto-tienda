@@ -83,7 +83,8 @@ Route::prefix('v1')->group(function () {
 
             Route::get('carrito/resumen', [ResumenCompraController::class, 'mostrar']);
 
-            Route::get('heckout/revisar', [CheckoutController::class, 'revisar']);
+            //ESTABA ARREGLADO NO SE COMO NO SE SUBIO AL REPOSITORIO, PERO AHORA SI, YA FUNCIONA
+            Route::get('checkout/revisar', [CheckoutController::class, 'revisar']);
 
             Route::post('checkout/datos', [CheckoutController::class, 'registrarDatos']);
 

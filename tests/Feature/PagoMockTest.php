@@ -54,6 +54,13 @@ class PagoMockTest extends TestCase
             'metodo_pago' => 'efectivo',
         ]);
 
+        /*
+        Crea un objeto simulado (mock) de PagoServiceInterface usando Mockery:
+        $mock = Mockery::mock(PagoServiceInterface::class);
+        Esto permite usar un sustituto del servicio real de pagos durante la prueba. Luego se configura su comportamiento:
+        $mock->shouldReceive('aprobar')->once()->andReturn(false);
+        Significa que aprobar() debe llamarse exactamente una vez y devolver false, simulando un pago rechazado sin realizar ningún pago real.
+        */
         $mock = Mockery::mock(
             PagoServiceInterface::class
         );
